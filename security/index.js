@@ -1,6 +1,8 @@
 const cryptoJS = require('crypto-js');
 const crypto = require('crypto');
-const eccrypto = require('eccrypto');   // https://www.npmjs.com/package/eccrypto
+const ecurve = require('ecurve');
+const BigInteger = require('bigi');
+const EC = require('elliptic').ec;
 
 /**
  * Cryptograph
@@ -21,8 +23,8 @@ studentName.split('').forEach(char => hashKey.push(char.toString(2).padStart(8, 
 console.log('hashKey:', hashKey.join(''));
 
 // Hash plain text
-// const hashedMessage = cryptoJS.SHA256(plainText).toString();
-const hashedMessage = crypto.createHash('sha256').update(plainText).digest();
+const hashedMessage = cryptoJS.SHA256(plainText).toString();
+// const hashedMessage = crypto.createHash('sha256').update(plainText).digest();
 console.log('hashedMessage:', hashedMessage);
 
 // Encrypt plain text with AES Algorithm
@@ -33,40 +35,36 @@ console.log('cipherText:', cipherText);
 const decipherText = cryptoJS.AES.decrypt(cipherText, aesKey).toString(cryptoJS.enc.Utf8);
 console.log('decipherText:', decipherText);
 
-// Generate ECC key pair
+/* Generate ECC key pair
+const ecparams = ecurve.getCurveByName('secp256k1');
 const privateKeyA = crypto.randomBytes(32);
-const publicKeyA = eccrypto.getPublic(privateKeyA);
 const privateKeyB = crypto.randomBytes(32);
-const publicKeyB = eccrypto.getPublic(privateKeyB);
-
-(async function() {
-    // A sends to B
-    try {
-        let signature = await eccrypto.sign(privateKeyA, hashedMessage);
-        console.log('signature in DER format:', signature);
-        eccrypto.encrypt(publicKeyB, aesKey)
-            .then(encrypted => console.log('encrypted:', encrypted))
-            .catch(error => console.log('error:', error));
-        //let encryptedAESKey = await eccrypto.encrypt(publicKeyB, aesKey);
-        //console.log('encryptedAESKey:', encryptedAESKey);
-        // B received encrypted.
-        let verification = await eccrypto.verify(publicKeyA, hashedMessage, signature);
-        console.log('verification signature:', verification);
-    }
-    catch (error) {
-        console.log('caught error:', error);
-    }
-})();
-/*
-eccrypto.sign(privateKeyA, hashedMessage)
-    .then(async (signature) => {
-        console.log('signature in DER format:', signature);
-        eccrypto.verify(publicKeyA, hashedMessage, signature)
-            .then(() => console.log('Signature is OK.'))
-            .catch(() => console.log('Signature is BAD.'));
-    })
-    .catch(() => console.log('Signature is incorrect.'));
+console.log('privateKeyA:', privateKeyA.toString('hex'));
+console.log('privateKeyB:', privateKeyB.toString('hex'));
+const curvePointA = ecparams.G.multiply(BigInteger.fromBuffer(privateKeyA));
+const pointX_A = curvePointA.affineX.toBuffer(32);
+const pointY_A = curvePointA.affineY.toBuffer(32);
+// console.log('A(x, y):', pointX_A, pointY_A);
+const publicKeyA = Buffer.concat([new Buffer([0x04]), pointX_A, pointY_A]);
+console.log('publicKeyA:', publicKeyA.toString('hex'));
+const curvePointB = ecparams.G.multiply(BigInteger.fromBuffer(privateKeyB));
+const pointX_B = curvePointB.affineX.toBuffer(32);
+const pointY_B = curvePointB.affineY.toBuffer(32);
+// console.log('B(x, y):', pointX_B, pointY_B);
+const publicKeyB = Buffer.concat([new Buffer([0x04]), pointX_B, pointY_B]);
+console.log('publicKeyB:', publicKeyB.toString('hex'));
 */
+
+const ec = new EC('secp256k1');
+const keyPairA = ec.genKeyPair();
+const keyPairB = ec.genKeyPair();
+console.log('keyPairA:', keyPairA, ', keyPairB:', keyPairB, ', equals: ', keyPairA == keyPairB);
+console.log('keyPairA:', keyPairA.getPublic(), ', keyPairB:', keyPairB.getPublic(), ', equals: ', keyPairA == keyPairB);
+console.log('keyPairA:', keyPairA.getPrivate(), ', keyPairB:', keyPairB.getPrivate(), ', equals: ', keyPairA == keyPairB);
+const ehmSignature = keyPairA.sign(hashedMessage);
+const derSign = ehmSignature.toDER();
+console.log('encryptedHashedMessage:', derSign.map(c => c.toString(16)).join(''));
+console.log('verification:', keyPairA.verify(hashedMessage, derSign));
 
 /*
 const ec = new EC('secp256k1');
