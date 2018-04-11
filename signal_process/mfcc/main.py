@@ -1,6 +1,10 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+######################################################################
+# Reference: http://python-speech-features.readthedocs.io/en/latest/ #
+######################################################################
+
 from mfcc import mfcc
 from mfcc import delta
 from mfcc import log_filter_bank
