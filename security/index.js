@@ -10,7 +10,7 @@ const ecc = require('eccjs');
  */
 
 const studentNumber = '2015125005';
-const studentName = 'KANGJUNGSUK';
+const studentName = 'KANGJUNGSUK'.slice(0, 6);
 
 // Get PlainText
 const plainText = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -18,15 +18,30 @@ console.log('[Stage 01] Plain Text:', plainText);
 
 // Generate Hash Key
 const hashKey = studentNumber.split('').map(number => (number | 0x30).toString(2).padStart(8, '0'));
-studentName.split('').forEach(char => hashKey.push(char.toString(2).padStart(8, '0')));
-//console.log('hashKey:', hashKey.join(''));
+studentName.split('').forEach((char, i) => hashKey.push(studentName.charCodeAt(i).toString(2).padStart(8, '0')));
+console.log('hashKey:', hashKey.join(''));
 
-//console.log('plainText:', plainText);
+// Flip the MSB of Hash Key
+let flippedHashKey = hashKey.join('');
+flippedHashKey = (flippedHashKey.slice(0, 1) ^ 0x01) + flippedHashKey.slice(1);
+console.log('flippedHashKey:', flippedHashKey);
 
 // Hash plain text
-const hashedMessage = cryptoJS.SHA256(plainText).toString();
+const hashedMessage = cryptoJS.SHA256(plainText, hashKey.join('')).toString();
 console.log('[Stage 02] Hashed Message:', hashedMessage);
 
+console.log('HmacSHA256:', cryptoJS.HmacSHA256(plainText, hashKey.join('')).toString());
+console.log('fHmacSHA256:', cryptoJS.HmacSHA256(plainText, flippedHashKey).toString());
+
+// Hash plain text with flipped hash key
+const fHashedMessage = cryptoJS.SHA256(plainText, flippedHashKey).toString();
+cryptoJS.SHA256()
+console.log('fHashed Message:', fHashedMessage);
+
+console.log('hashed === fhashed:', hashedMessage === fHashedMessage);
+process.exit(0);
+
+// Avalanche Effect
 console.log('plainText.:', plainText + '.');
 console.log('hashedMessage.:', cryptoJS.SHA256(plainText+'.').toString());
 
