@@ -27,23 +27,22 @@ flippedHashKey = (flippedHashKey.slice(0, 1) ^ 0x01) + flippedHashKey.slice(1);
 console.log('flippedHashKey:', flippedHashKey);
 
 // Hash plain text
-const hashedMessage = cryptoJS.SHA256(plainText, hashKey.join('')).toString();
+const hashedMessage = cryptoJS.HmacSHA256(plainText, hashKey.join('')).toString();
 console.log('[Stage 02] Hashed Message:', hashedMessage);
 
-console.log('HmacSHA256:', cryptoJS.HmacSHA256(plainText, hashKey.join('')).toString());
-console.log('fHmacSHA256:', cryptoJS.HmacSHA256(plainText, flippedHashKey).toString());
-
 // Hash plain text with flipped hash key
-const fHashedMessage = cryptoJS.SHA256(plainText, flippedHashKey).toString();
-cryptoJS.SHA256()
+const fHashedMessage = cryptoJS.HmacSHA256(plainText, flippedHashKey).toString();
 console.log('fHashed Message:', fHashedMessage);
 
-console.log('hashed === fhashed:', hashedMessage === fHashedMessage);
+// [Problem 5]
+let bit_match_ratio = 0;
+hashedMessage.split('').forEach((hm, i) => bit_match_ratio += (hm == fHashedMessage[i]));
+console.log(`bit_match_ratio: ${bit_match_ratio} / ${hashedMessage.length}`);
 process.exit(0);
 
 // Avalanche Effect
 console.log('plainText.:', plainText + '.');
-console.log('hashedMessage.:', cryptoJS.SHA256(plainText+'.').toString());
+console.log('hashedMessage.:', cryptoJS.HmacSHA256(plainText+'.', hashKey.join('')).toString());
 
 // Encrypt plain text with AES Algorithm
 const aesKey = 'AES_KEY';
