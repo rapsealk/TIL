@@ -29,31 +29,19 @@ console.log('[Problem 03] Cipher Text:', cipherText);
 const fplainText = String.fromCharCode(plainText.charCodeAt(0) ^ 0x01) + plainText.slice(1);
 console.log('fplainText:', fplainText);
 
+// [Problem 05]
 const fcipherText = cryptoJS.AES.encrypt(fplainText, aesKey).toString();
 console.log('[Problem 05] fcipher text:', fcipherText);
 
-/* Flip the MSB of Hash Key
-let flippedHashKey = hashKey.join('');
-flippedHashKey = (flippedHashKey.slice(0, 1) ^ 0x01) + flippedHashKey.slice(1);
-console.log('flippedHashKey:', flippedHashKey);
-*/
+const cipherTextInBits = cipherText.split('').map((t, i) => cipherText.charCodeAt(i).toString(2).padStart(8, '0')).join('');
+const fcipherTextInBits = fcipherText.split('').map((t, i) => fcipherText.charCodeAt(i).toString(2).padStart(8, '0')).join('');
+let bit_match_ratio = 0;
+cipherTextInBits.split('').forEach((bit, index) => bit_match_ratio += (bit == fcipherTextInBits[index]));
+console.log(`bit_match_ratio: ${bit_match_ratio - 256} / ${cipherTextInBits.length - 256}`);
 
 // Hash plain text
 const hashedMessage = cryptoJS.HmacSHA256(plainText, hashKey.join('')).toString();
 console.log('Hashed Message:', hashedMessage);
-
-/* Hash plain text with flipped hash key
-const fHashedMessage = cryptoJS.HmacSHA256(plainText, flippedHashKey).toString();
-console.log('fHashed Message:', fHashedMessage);
-*/
-
-/* [Problem 5]
-let bit_match_ratio = 0;
-const hashedMessageInBits = hashedMessage.split('').map((m, i) => hashedMessage.charCodeAt(i).toString(2).padStart(8, '0')).join('');
-const fhashedMessageInBits = fHashedMessage.split('').map((m, i) => fHashedMessage.charCodeAt(i).toString(2).padStart(8, '0')).join('');
-hashedMessageInBits.split('').forEach((hm, i) => bit_match_ratio += (hm == fhashedMessageInBits[i]));
-console.log(`[Problem 05]: ${bit_match_ratio - 256} / ${hashedMessageInBits.length - 256}`);
-*/
 
 // Avalanche Effect
 console.log('plainText.:', plainText + '.');
