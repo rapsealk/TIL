@@ -1,5 +1,6 @@
 const cryptoJS = require('crypto-js');
 const ecc = require('eccjs');
+const randomstring = require('randomstring');
 
 /**
  * Cryptograph
@@ -9,19 +10,53 @@ const ecc = require('eccjs');
  * Hash Algorithm: SHA-256 (Secure Hash Algorithm)
  */
 
- // [Problem 1] Generate Hash Key
+ // [Problem 1] Generate AES Key
 const studentNumber = '2015125005';
 const studentName = 'KANGJUNGSUK'.slice(0, 6);
-const hashKey = studentNumber.split('').map(number => (number | 0x30).toString(2).padStart(8, '0'));
-studentName.split('').forEach((char, i) => hashKey.push(studentName.charCodeAt(i).toString(2).padStart(8, '0')));
-console.log('[Problem 01] hashKey:', hashKey.join(''));
+const aesKey = studentNumber.split('').map(number => (number | 0x30).toString(2).padStart(8, '0')).join('')
+                + studentName.split('').map((char, i) => studentName.charCodeAt(i).toString(2).padStart(8, '0')).join('');
+console.log('[Problem 01] AES Key:', aesKey);
+console.log('length:', aesKey.length);
+
+// [Problem 06] Round Key
+let roundKeys = [];
+for (let i = 0; i < 4; i++) roundKeys.push(aesKey.slice(i*32, (i+1)*32));
+//console.log(roundKeys);
+
+for (let i = 4; i < 10; i++) {
+    let key1 = roundKeys[i-4].split('');
+    let key2 = roundKeys[i-1].split('');
+    roundKeys.push(key1.map((k, i) => k ^ key2[i]).join(''));
+}
+console.log(roundKeys);
+
+let roundKeys2 = [];
+for (let i = 0; i < 4; i++) roundKeys2.push(aesKey.slice(i*32, (i+1)*32));
+roundKeys2[0] = roundKeys2[0].split('').map((k, i) => (i == 0) ? (k ^ 1) : k).join('');
+//console.log(roundKeys2);
+
+for (let i = 4; i < 10; i++) {
+    let k1 = roundKeys2[i-4].split('');
+    let k2 = roundKeys2[i-1].split('');
+    roundKeys2.push(k1.map((k, i) => k ^ k2[i]).join(''));
+}
+console.log(roundKeys2);
+
+let count = 0;
+for (let i = 0; i < 10; i++) {
+    for (let j = 0; j < roundKeys[i].length; j++) {
+        count += (roundKeys[i][j] == roundKeys2[i][j]);
+    }
+}
+console.log('count:', count);
+
+process.exit(0);
 
 // [Problem 2] Get PlainText
-const plainText = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const plainText = 'ABCDEFGHIJKLMNOP';
 console.log('[Problem 02] Plain Text:', plainText);
 
 // [Problem 3] Encrypt plain text with AES Algorithm
-const aesKey = 'AES_KEY';
 const cipherText = cryptoJS.AES.encrypt(plainText, aesKey).toString();
 console.log('[Problem 03] Cipher Text:', cipherText);
 
@@ -40,12 +75,13 @@ cipherTextInBits.split('').forEach((bit, index) => bit_match_ratio += (bit == fc
 console.log(`bit_match_ratio: ${bit_match_ratio - 256} / ${cipherTextInBits.length - 256}`);
 
 // Hash plain text
-const hashedMessage = cryptoJS.HmacSHA256(plainText, hashKey.join('')).toString();
+const hashKey = randomstring.generate(45);
+const hashedMessage = cryptoJS.HmacSHA256(plainText, hashKey).toString();
 console.log('Hashed Message:', hashedMessage);
 
 // Avalanche Effect
 console.log('plainText.:', plainText + '.');
-console.log('hashedMessage.:', cryptoJS.HmacSHA256(plainText+'.', hashKey.join('')).toString());
+console.log('hashedMessage.:', cryptoJS.HmacSHA256(plainText+'.', hashKey).toString());
 
 // Generate ECC key pair
 const keyPairA = ecc.generate(ecc.SIG_VER);
@@ -73,7 +109,7 @@ console.log('Decrypted AES Key:', decAESKey);
 const decipherText = cryptoJS.AES.decrypt(cipherText, decAESKey).toString(cryptoJS.enc.Utf8);
 console.log('[Problem 04] Decipher Text:', decipherText);
 
-const hashedDecipherMessage = cryptoJS.HmacSHA256(decipherText, hashKey.join('')).toString();
+const hashedDecipherMessage = cryptoJS.HmacSHA256(decipherText, hashKey).toString();
 console.log('Hashed Decipher Message:', hashedDecipherMessage);
 
 const isPrivateA = ecc.verify(keys.public.A, signature, hashedDecipherMessage);
