@@ -54,7 +54,7 @@ def spectral_subband_centroid(signal, sample_rate=16000, window_length=0.025, wi
     feature = np.dot(power_spec, filter_bank.T)
     R = np.tile(np.linspace(1, sample_rate / 2, np.size(power_spec, 1)), (np.size(power_spec, 0), 1))
 
-    return np.dot(power_spec * R, filter_bank.T) / feat
+    return np.dot(power_spec * R, filter_bank.T) / feature
 
 def hertz2mel(hz):
     return 2595 * np.log10(1 + hz/700.)
