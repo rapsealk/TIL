@@ -7,7 +7,9 @@ from mfcc import delta
 from mfcc import log_filter_bank
 import scipy.io.wavfile as wav
 
-EMOTIONS = ["happiness", "neutral", "sadness", "nervous", "anger"]
+EMOTIONS = ['happy', 'neutral', 'sad', 'angry', 'disgust']
+DATA_STATIC_PATH = './dataset/tess/'
+# EMOTIONS = ["happiness", "neutral", "sadness", "nervous", "anger"]
 
 def load_dataset(csv_file='./dataset.csv'):
     handle = open(csv_file, 'r')
@@ -97,7 +99,7 @@ b_fc2 = bias_variable([len(EMOTIONS)])
 y_conv = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
 
 # train and evaluation
-cross_entropy = -tf.reduce_sum(y * tf.log(y_conv))
+cross_entropy = -1 * tf.reduce_sum(y * tf.log(y_conv))
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -106,13 +108,14 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-datalist = load_dataset()
+datalist = load_dataset(DATA_STATIC_PATH+'dataset.csv')
+#datalist = load_dataset()
 timestamp = time.time()
 train_epoch = 0
 
 for filename, target_emotion in datalist:
     train_epoch += 1
-    rate, signal = wav.read(filename)
+    rate, signal = wav.read(DATA_STATIC_PATH + target_emotion + '/' + filename)
     mfcc_feature = mfcc(signal, rate)
     d_mfcc_feature = delta(mfcc_feature, 2)
     filter_bank_feature = log_filter_bank(signal, rate)
@@ -136,7 +139,7 @@ test_acc = []
 
 for filename, target_emotion in datalist:
     test_epoch += 1
-    rate, signal = wav.read(filename)
+    rate, signal = wav.read(DATA_STATIC_PATH + target_emotion + '/' + filename)
     mfcc_feature = mfcc(signal, rate)
     d_mfcc_feature = delta(mfcc_feature, 2)
     filter_bank_feature = log_filter_bank(signal, rate)
