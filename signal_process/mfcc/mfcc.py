@@ -35,7 +35,7 @@ def filter_bank(signal, sample_rate=16000, window_length=0.025, window_step=0.01
 
 def log_filter_bank(signal, sample_rate=16000, window_length=0.025, window_step=0.01,
                     number_of_filters=26, number_of_fft=512, lowest_freq=0, highest_freq=None, preemphasis=0.97):
-    
+
     feature, energy = filter_bank(signal, sample_rate, window_length, window_step, number_of_filters, number_of_fft,
                                     lowest_freq, highest_freq, preemphasis)
     return np.log(feature)

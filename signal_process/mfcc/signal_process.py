@@ -68,6 +68,8 @@ def deframe_signal(frames, signal_length, frame_length, frame_step, window_funct
     return rec_signal[0:signal_length]
 
 def magnitude_spectrum(frames, fft_length):
+    #print('np.shape(frames)[1]:', np.shape(frames)[1])
+    #print('fft_length:', fft_length)
     if np.shape(frames)[1] > fft_length:
         logging.warn('frame length (%d) is greater than FFT size (%d), frame will be truncated. Increase fft_length to avoice.',
                     np.shape(frames)[1], fft_length)
