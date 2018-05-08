@@ -7,6 +7,8 @@ from mfcc import delta
 from mfcc import log_filter_bank
 import scipy.io.wavfile as wav
 
+from random import shuffle
+
 EMOTIONS = ['happy', 'neutral', 'sad', 'angry', 'disgust']
 DATA_STATIC_PATH = './dataset/tess/'
 # EMOTIONS = ["happiness", "neutral", "sadness", "nervous", "anger"]
@@ -52,32 +54,14 @@ x = tf.placeholder(tf.float32, shape=[2, 26])
 y = tf.placeholder(tf.float32, shape=[None, len(EMOTIONS)])
 
 x_voice = tf.reshape(x, [-1, 2, 26, 1])
-"""
-W_conv1 = weight_variable([1, 2, 26, 1])    # [row, column, *depth, quant]
-b_conv1 = bias_variable([32])
 
-h_conv1 = tf.nn.relu(conv1d(x_voice, W_conv1) + b_conv1)
-h_pool1 = max_pool_1x2(h_conv1)             # 26 -> 13
-
-W_conv2 = weight_variable([1, 2, 32, 64])
-b_conv2 = bias_variable([64])
-
-h_conv2 = tf.nn.relu(conv1d(h_pool1, W_conv2) + b_conv2)
-h_pool2 = max_pool_1x2(h_conv2)             # 13 -> 7
-
-W_fc1 = weight_variable([7 * 1 * 64, 1024])
-b_fc1 = bias_variable([1024])
-
-h_pool2_flat = tf.reshape(h_pool2, [-1, 7 * 1 * 64])
-h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc1) + b_fc1)
-"""
-W_conv1 = weight_variable([5, 5, 1, 32])
+W_conv1 = weight_variable([2, 2, 1, 32])
 b_conv1 = bias_variable([32])
 
 h_conv1 = tf.nn.relu(conv2d(x_voice, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 
-W_conv2 = weight_variable([5, 5, 32, 64])
+W_conv2 = weight_variable([2, 2, 32, 64])
 b_conv2 = bias_variable([64])
 
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
@@ -109,6 +93,7 @@ sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
 datalist = load_dataset(DATA_STATIC_PATH+'dataset.csv')
+shuffle(datalist)
 #datalist = load_dataset()
 timestamp = time.time()
 train_epoch = 0
