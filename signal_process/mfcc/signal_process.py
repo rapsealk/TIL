@@ -78,13 +78,13 @@ def magnitude_spectrum(frames, fft_length):
 
 def power_spectrum(frames, fft_length):
     return 1.0 / fft_length * np.square(magnitude_spectrum(frames, fft_length))
-
+"""
 def log_power_spectrum(frames, fft_length, norm=1):
     power_spec = power_spectrum(frames, fft_length)
     power_spec[power_spec <= 1e-30] = 1e-30
     log_power_spec = 10 * np.log10(power_spec)
     if norm: log_power_spec -= np.max(log_power_spec)
     return log_power_spec
-
+"""
 def pre_emphasis(signal, coefficient=0.95):
     return np.append(signal[0], signal[1:] - coefficient * signal[:-1])

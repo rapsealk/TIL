@@ -6,6 +6,11 @@ def mfcc(signal, sample_rate=16000, window_length=0.025, window_step=0.01, numbe
         number_of_filter=26, number_of_fft=512, lowest_freq=0, highest_freq=None, preemphasis=0.97,
         cepstra_lifter=22, appendEnergy=True, window_function=lambda x: np.ones((x,))):
 
+    if sample_rate == 44100:
+        number_of_fft = 1103
+    elif sample_rate == 24414:
+        number_of_fft = 610
+
     feature, energy = filter_bank(signal, sample_rate, window_length, window_step, number_of_filter, number_of_fft,
                                     lowest_freq, highest_freq, preemphasis, window_function)
     feature = np.log(feature)
@@ -36,10 +41,15 @@ def filter_bank(signal, sample_rate=16000, window_length=0.025, window_step=0.01
 def log_filter_bank(signal, sample_rate=16000, window_length=0.025, window_step=0.01,
                     number_of_filters=26, number_of_fft=512, lowest_freq=0, highest_freq=None, preemphasis=0.97):
 
+    if sample_rate == 44100:
+        number_of_fft = 1103
+    elif sample_rate == 24414:
+        number_of_fft = 610
+
     feature, energy = filter_bank(signal, sample_rate, window_length, window_step, number_of_filters, number_of_fft,
                                     lowest_freq, highest_freq, preemphasis)
     return np.log(feature)
-
+"""
 def spectral_subband_centroid(signal, sample_rate=16000, window_length=0.025, window_step=0.01,
                                 number_of_filters=26, number_of_fft=512, lowest_freq=0, highest_freq=None,
                                 preemphasis=0.97, window_function=lambda x: np.ones((x,))):
@@ -55,7 +65,7 @@ def spectral_subband_centroid(signal, sample_rate=16000, window_length=0.025, wi
     R = np.tile(np.linspace(1, sample_rate / 2, np.size(power_spec, 1)), (np.size(power_spec, 0), 1))
 
     return np.dot(power_spec * R, filter_bank.T) / feature
-
+"""
 def hertz2mel(hz):
     return 2595 * np.log10(1 + hz/700.)
 

@@ -7,15 +7,23 @@ from mfcc import delta
 from mfcc import log_filter_bank
 import scipy.io.wavfile as wav
 
+import matplotlib
+matplotlib.use('PS')
+import matplotlib.pyplot as plt
+from scipy import signal as sig
+
 from random import shuffle
 
 EMOTIONS = ['happy', 'neutral', 'sad', 'angry', 'disgust']
 DATA_STATIC_PATH = './dataset/tess/'
-# EMOTIONS = ["happiness", "neutral", "sadness", "nervous", "anger"]
 
-def load_dataset(csv_file='./dataset.csv'):
+""" Inside Out
+EMOTIONS = ['happy', 'sad', 'nervous', 'angry']
+DATA_STATIC_PATH = './dataset/inside_out/' # './dataset/tess/'
+"""
+def load_dataset(csv_file='./dataset/tess/dataset.csv'):
     handle = open(csv_file, 'r')
-    rawlines = handle.read().split('\n')
+    rawlines = handle.read().split('\n')[:-1]
     handle.close()
     datalist = [(lambda x: x.split(','))(line) for line in rawlines]
     return datalist
@@ -92,15 +100,24 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-datalist = load_dataset(DATA_STATIC_PATH+'dataset.csv')
-shuffle(datalist)
-#datalist = load_dataset()
+datalist = load_dataset()
+#shuffle(datalist)
 timestamp = time.time()
 train_epoch = 0
 
 for filename, target_emotion in datalist:
     train_epoch += 1
     rate, signal = wav.read(DATA_STATIC_PATH + target_emotion + '/' + filename)
+
+    if train_epoch == 1:
+        frequencies, times, spectrogram = sig.spectrogram(signal, rate)
+
+        plt.pcolormesh(times, frequencies, spectrogram)
+        plt.imshow(spectrogram)
+        plt.ylabel('Frequency [Hz]')
+        plt.xlabel('Time [sec]')
+        plt.show()
+
     mfcc_feature = mfcc(signal, rate)
     d_mfcc_feature = delta(mfcc_feature, 2)
     filter_bank_feature = log_filter_bank(signal, rate)
@@ -108,13 +125,13 @@ for filename, target_emotion in datalist:
     feature = filter_bank_feature[1:3, :]
 
     emotion_vector = [onehot_output(target_emotion)]
-    print('train filename:', filename)
-    print('emotion_vector:', emotion_vector, 'actual:', target_emotion)
+    # print('train filename:', filename)
+    # print('emotion_vector:', emotion_vector, 'actual:', target_emotion)
     #print('feature:', feature[0])
 
     _timestamp = time.time()
     train_accuracy = sess.run(accuracy, feed_dict={ x: feature, y: emotion_vector, keep_prob: 1.0 })
-    print('epoch %d, training accuracy: %g - %fs' %(train_epoch, train_accuracy, _timestamp - timestamp))
+    # print('epoch %d, training accuracy: %g - %fs' %(train_epoch, train_accuracy, _timestamp - timestamp))
     timestamp = _timestamp
     sess.run(train_step, feed_dict={ x: feature, y: emotion_vector, keep_prob: 0.5 })
 
@@ -131,12 +148,12 @@ for filename, target_emotion in datalist:
     feature = filter_bank_feature[1:3, :]
 
     emotion_vector = [onehot_output(target_emotion)]
-    print('test filename:', filename)
-    print('emotion_vector:', emotion_vector, 'actual:', target_emotion)
+    # print('test filename:', filename)
+    # print('expected:', emotion_vector, 'actual:', target_emotion, 'rate:', rate)
 
     _timestamp = time.time()
     test_accuracy = sess.run(accuracy, feed_dict={ x: feature, y: emotion_vector, keep_prob: 1.0 })
-    print('epoch %d' %test_epoch, test_accuracy, '- %fs' %(_timestamp - timestamp))
+    # print('epoch %d' %test_epoch, test_accuracy, '- %fs' %(_timestamp - timestamp))
     test_acc.append(test_accuracy)
     timestamp = _timestamp
 
