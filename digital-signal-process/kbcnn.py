@@ -74,13 +74,13 @@ y = tf.placeholder(tf.float32, shape=[None, len(EMOTIONS)])
 
 x_voice = tf.reshape(x, [-1, 2, 26, 1])
 
-W_conv1 = weight_variable([2, 2, 1, 32])
-b_conv1 = bias_variable([32])
+W_conv1 = weight_variable([2, 2, 1, 26])
+b_conv1 = bias_variable([26])
 
 h_conv1 = tf.nn.relu(conv2d(x_voice, W_conv1) + b_conv1)
 h_pool1 = max_pool_2x2(h_conv1)
 
-W_conv2 = weight_variable([2, 2, 32, 64])
+W_conv2 = weight_variable([2, 2, 26, 64])
 b_conv2 = bias_variable([64])
 
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
@@ -118,6 +118,7 @@ train_epoch = 0
 
 for filename, target_emotion in datalist:
     train_epoch += 1
+    if filename in ['YAF_germ_angry.wav']: continue
     rate, signal = wav.read(DATA_STATIC_PATH + target_emotion + '/' + filename)
     """
     if train_epoch == 1:
@@ -152,6 +153,7 @@ test_acc = []
 
 for filename, target_emotion in datalist:
     test_epoch += 1
+    if filename in ['YAF_germ_angry.wav']: continue
     rate, signal = wav.read(DATA_STATIC_PATH + target_emotion + '/' + filename)
     mfcc_feature = mfcc(signal, rate)
     d_mfcc_feature = delta(mfcc_feature, 2)

@@ -4,7 +4,7 @@
 import os
 
 #################################################################
-# set current directory to 'mfcc/dataset/tess' before run.      #
+# set current directory to '/dataset/tess' before run.      #
 #################################################################
 
 class CsvGenerator:
