@@ -8,8 +8,13 @@ freq, times, spectrogram = signal.spectrogram(sample_signal, sample_rate)
 
 print('spectrogram:', spectrogram)
 
+fig = plt.figure()
+
 plt.pcolormesh(times, freq, spectrogram)
 plt.imshow(spectrogram)
-plt.ylabel('Frequency [Hz]')
-plt.xlabel('Time [sec]')
-plt.show()
+plt.axis('off')
+#plt.ylabel('Frequency [Hz]')
+#plt.xlabel('Time [sec]')
+#plt.show()
+fig.savefig('./pyplot_figure_image.png')
+#plt.close(fig)
