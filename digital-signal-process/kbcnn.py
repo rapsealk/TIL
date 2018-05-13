@@ -2,14 +2,16 @@ import tensorflow as tf
 import numpy as np
 import time
 
-from mfcc import mfcc
-from mfcc import delta
-from mfcc import log_filter_bank
+from speechpy import mfcc
+from speechpy import delta
+from speechpy import log_filter_bank
 import scipy.io.wavfile as wav
 
+"""
 import matplotlib
 matplotlib.use('PS')
 import matplotlib.pyplot as plt
+"""
 from scipy import signal as sig
 
 from random import shuffle
@@ -21,11 +23,16 @@ DATA_STATIC_PATH = './dataset/tess/'
 EMOTIONS = ['happy', 'sad', 'nervous', 'angry']
 DATA_STATIC_PATH = './dataset/inside_out/' # './dataset/tess/'
 """
+
+"""
+학습 데이터를 csv 파일에서 읽어온 다음,
+[(파일 이름, 감정)] 형태로 반환.
+"""
 def load_dataset(csv_file='./dataset/tess/dataset.csv'):
     handle = open(csv_file, 'r')
-    rawlines = handle.read().split('\n')[:-1]
+    rawlines = handle.read().split('\n')#[:-1]
     handle.close()
-    datalist = [(lambda x: x.split(','))(line) for line in rawlines]
+    datalist = [line.split(',') for line in rawlines]
     return datalist
 
 def onehot_output(target_emotion):
@@ -58,6 +65,10 @@ def conv2d(x, W):
 def max_pool_2x2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
 
+"""
+x: wav 파일을 처리해서 나온 [2, 26] 형태의 MFCC 값을 입력으로 한다.
+y: 각 감정에 대한 확률을 출력으로 한다.
+"""
 x = tf.placeholder(tf.float32, shape=[2, 26])
 y = tf.placeholder(tf.float32, shape=[None, len(EMOTIONS)])
 
@@ -101,14 +112,14 @@ sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
 datalist = load_dataset()
-#shuffle(datalist)
+shuffle(datalist)
 timestamp = time.time()
 train_epoch = 0
 
 for filename, target_emotion in datalist:
     train_epoch += 1
     rate, signal = wav.read(DATA_STATIC_PATH + target_emotion + '/' + filename)
-
+    """
     if train_epoch == 1:
         frequencies, times, spectrogram = sig.spectrogram(signal, rate)
 
@@ -117,9 +128,9 @@ for filename, target_emotion in datalist:
         plt.ylabel('Frequency [Hz]')
         plt.xlabel('Time [sec]')
         plt.show()
-
-    mfcc_feature = mfcc(signal, rate)
-    d_mfcc_feature = delta(mfcc_feature, 2)
+    """
+    #mfcc_feature = mfcc(signal, rate)
+    #d_mfcc_feature = delta(mfcc_feature, 2)
     filter_bank_feature = log_filter_bank(signal, rate)
     #[feature, _] = filter_bank_feature[1:3, :]
     feature = filter_bank_feature[1:3, :]
@@ -131,7 +142,7 @@ for filename, target_emotion in datalist:
 
     _timestamp = time.time()
     train_accuracy = sess.run(accuracy, feed_dict={ x: feature, y: emotion_vector, keep_prob: 1.0 })
-    # print('epoch %d, training accuracy: %g - %fs' %(train_epoch, train_accuracy, _timestamp - timestamp))
+    print('epoch %d, training accuracy: %g - %fs' %(train_epoch, train_accuracy, _timestamp - timestamp))
     timestamp = _timestamp
     sess.run(train_step, feed_dict={ x: feature, y: emotion_vector, keep_prob: 0.5 })
 
@@ -153,7 +164,7 @@ for filename, target_emotion in datalist:
 
     _timestamp = time.time()
     test_accuracy = sess.run(accuracy, feed_dict={ x: feature, y: emotion_vector, keep_prob: 1.0 })
-    # print('epoch %d' %test_epoch, test_accuracy, '- %fs' %(_timestamp - timestamp))
+    print('epoch %d' %test_epoch, test_accuracy, '- %fs' %(_timestamp - timestamp), filename)
     test_acc.append(test_accuracy)
     timestamp = _timestamp
 

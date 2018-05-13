@@ -1,17 +1,17 @@
 import numpy as np
-from scipy.fftpack import dct
-import signal_process
+from scipy.fftpack import dct   # Discrete Cosine Transform
+from speechpy import signal_process
 
 def mfcc(signal, sample_rate=16000, window_length=0.025, window_step=0.01, number_of_cepstra=13,
-        number_of_filter=26, number_of_fft=512, lowest_freq=0, highest_freq=None, preemphasis=0.97,
+        number_of_filter=26, nfft=512, lowest_freq=0, highest_freq=None, preemphasis=0.97,
         cepstra_lifter=22, appendEnergy=True, window_function=lambda x: np.ones((x,))):
 
     if sample_rate == 44100:
-        number_of_fft = 1103
+        nfft = 1103
     elif sample_rate == 24414:
-        number_of_fft = 610
+        nfft = 610
 
-    feature, energy = filter_bank(signal, sample_rate, window_length, window_step, number_of_filter, number_of_fft,
+    feature, energy = filter_bank(signal, sample_rate, window_length, window_step, number_of_filter, nfft,
                                     lowest_freq, highest_freq, preemphasis, window_function)
     feature = np.log(feature)
     feature = dct(feature, type=2, axis=1, norm='ortho')[:, :number_of_cepstra]
@@ -22,45 +22,45 @@ def mfcc(signal, sample_rate=16000, window_length=0.025, window_step=0.01, numbe
     return feature
 
 def filter_bank(signal, sample_rate=16000, window_length=0.025, window_step=0.01,
-                number_of_filters=26, number_of_fft=512, lowest_freq=0, highest_freq=None,
-                preemphasis=0.97, window_function=lambda x: np.ones((x,))):
+                number_of_filters=26, nfft=512, lowest_freq=0, highest_freq=None, preemphasis=0.97,
+                window_function=lambda x: np.ones((x,))):
 
     highest_freq = highest_freq or (sample_rate / 2)
     signal = signal_process.pre_emphasis(signal, preemphasis)
     frames = signal_process.frame_signal(signal, window_length * sample_rate, window_step * sample_rate, window_function)
-    power_spec = signal_process.power_spectrum(frames, number_of_fft)
+    power_spec = signal_process.power_spectrum(frames, nfft)
     energy = np.sum(power_spec, 1)
     energy = np.where(energy == 0, np.finfo(float).eps, energy)
 
-    fbank = get_filterbanks(number_of_filters, number_of_fft, sample_rate, lowest_freq, highest_freq)
+    fbank = get_filterbanks(number_of_filters, nfft, sample_rate, lowest_freq, highest_freq)
     feature = np.dot(power_spec, fbank.T)
     feature = np.where(feature == 0, np.finfo(float).eps, feature)
 
     return feature, energy
 
 def log_filter_bank(signal, sample_rate=16000, window_length=0.025, window_step=0.01,
-                    number_of_filters=26, number_of_fft=512, lowest_freq=0, highest_freq=None, preemphasis=0.97):
+                    number_of_filters=26, nfft=512, lowest_freq=0, highest_freq=None, preemphasis=0.97):
 
     if sample_rate == 44100:
-        number_of_fft = 1103
+        nfft = 1103
     elif sample_rate == 24414:
-        number_of_fft = 610
+        nfft = 610
 
-    feature, energy = filter_bank(signal, sample_rate, window_length, window_step, number_of_filters, number_of_fft,
+    feature, energy = filter_bank(signal, sample_rate, window_length, window_step, number_of_filters, nfft,
                                     lowest_freq, highest_freq, preemphasis)
     return np.log(feature)
 """
 def spectral_subband_centroid(signal, sample_rate=16000, window_length=0.025, window_step=0.01,
-                                number_of_filters=26, number_of_fft=512, lowest_freq=0, highest_freq=None,
+                                number_of_filters=26, nfft=512, lowest_freq=0, highest_freq=None,
                                 preemphasis=0.97, window_function=lambda x: np.ones((x,))):
     
     highest_freq = highest_freq or (sample_rate / 2)
     signal = signal_process.pre_emphasis(signal, preemphasis)
     frames = signal_process.frame_signal(signal, window_length * sample_rate, window_step * sample_rate, window_function)
-    power_spec = signal_process.power_spectrum(frames, number_of_fft)
+    power_spec = signal_process.power_spectrum(frames, nfft)
     power_spec = np.where(power_spec == 0, np.finfo(float).eps, power_spec)
 
-    filter_bank = get_filterbanks(number_of_filters, number_of_fft, sample_rate, lowest_freq, highest_freq)
+    filter_bank = get_filterbanks(number_of_filters, nfft, sample_rate, lowest_freq, highest_freq)
     feature = np.dot(power_spec, filter_bank.T)
     R = np.tile(np.linspace(1, sample_rate / 2, np.size(power_spec, 1)), (np.size(power_spec, 0), 1))
 
