@@ -1,3 +1,5 @@
+#/usr/local/bin/python3
+# -*- coding: utf-8 -*-
 import tensorflow as tf
 import numpy as np
 from scipy.misc import imread

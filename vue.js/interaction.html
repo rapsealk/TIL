@@ -1,0 +1,50 @@
+<html>
+<head>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<title>Interaction | Vuetorial</title>
+</head>
+<body>
+	<div class="container">
+        <h1>People of Vue</h1>
+        <ul class="list-group">
+            <li v-for="candidate in candidates" class="list-group-item">
+                {{ candidate.name }}: {{ candidate.votes }}
+                <button @click="candidate.votes++" class="btn btn-primary">Vote</button>
+            </li>
+        </ul>
+        <form class="form-inline" mdthod="post">
+            <button @click.prevent="reset" type="submit" class="btn btn-warning">Reset</button>
+        </form>
+        <h2>Our mayor is {{ mayor }}!</h2>
+	</div>
+</body>
+<!--
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.js"></script>
+<script>
+	var app = new Vue({
+		el: '.container',
+		data: {
+            candidates: [
+                { name: 'Mr. Black', votes: 0 },
+                { name: 'Mr. Pink', votes: 0 },
+                { name: 'Mr. White', votes: 0 },
+                { name: 'Mr. Brown', votes: 0 }
+            ]
+        },
+        methods: {
+            reset: function() {
+                this.candidates.forEach(candidate => candidate.votes = 0);
+            }
+        },
+        computed: {
+            mayor: function() {
+                return this.candidates.map(candidate => candidate).sort((a, b) => b.votes - a.votes)[0].name;
+            }
+        }
+	});
+</script>
+</html>
