@@ -1,7 +1,12 @@
 #!/usr/bin/env Rscript
 # PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked
+if ('moments' %in% rownames(installed.packages()) == FALSE) {
+    install.packages('moments', repos='http://healthstat.snu.ac.kr/CRAN/')
+}
+library(moments)
 
-train <- read.csv('./titanic-data/train.csv', sep=',', header=T, na.strings=c(''))
+PATH <- '~/Desktop/git/TIL/datascience'
+train <- read.csv('./datasets/titanic/train.csv', sep=',', header=T, na.strings=c(''))
 # test <- read.csv('./titanic-data/test.csv', sep=',', header=T, na.strings=c(''))
 #str(train)
 
@@ -26,3 +31,11 @@ hist(train$Fare, freq=FALSE)
 # test$Pclass <- as.factor(test$Pclass)
 # table(train$Pclass)
 
+# Density
+d <- density.default(train$Fare)
+plot(d)
+polygon(d, col='red', border='blue')
+
+# skewness
+hist(train$Fare, main='Histogram for Fare', xlab='Fare', col='green', xlim=c(0, 600), las=1, breaks=5)
+skewness(train$Fare)
