@@ -53,7 +53,7 @@ num_sample = 32
 
 for filename, target_emotion in train_datalist:
     if filename in ['YAF_germ_angry.wav']: continue
-    #mfcc 처리
+    # mfcc 처리
     rate, signal = wav.read(DATA_STATIC_PATH + target_emotion + '/' + filename)
     filter_bank_feature = log_filter_bank(signal, rate)
 
