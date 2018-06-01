@@ -56,8 +56,8 @@ class Model():
 
 			processed_x.append(filter_bank_feature[:self.num_sample, :])
 			processed_y.append(self.EMOTIONS[target_emotion])
-			print('\nemotion:', target_emotion)
-			print(filter_bank_feature[:self.num_sample, :])
+			# print('\nemotion:', target_emotion)
+			# print(filter_bank_feature[:self.num_sample, :])
 
 		processed_x = np.array(processed_x).reshape(-1, self.num_sample, 26, 1)
 		processed_y = np_utils.to_categorical(processed_y)
@@ -81,6 +81,13 @@ class Model():
 		loss_and_metrics = self.model.evaluate(self.test_data_x, self.test_data_y, batch_size=32)
 		print('>> test result')
 		print(loss_and_metrics)
+
+	def predict(self, x):
+		x = self.test_data_x[:2]
+		prediction = self.model.predict(x, batch_size=32)
+		print('>> predict result')
+		print(prediction)
+		print('y[:2]:', self.test_data_y[:2])
 
 	def save(self):
 		self.model.save('cnn_emotion_model.h5')
@@ -107,5 +114,6 @@ if __name__ == '__main__':
 	model = Model()
 	model.load_dataset()
 	model.train()
-	model.test()
-	model.save()
+	#model.test()
+	#model.save()
+	model.predict([])
