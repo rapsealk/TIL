@@ -15,7 +15,8 @@ class Model():
 		self.EMOTIONS = { 'happy': 0, 'neutral': 1, 'sad': 2, 'angry': 3, 'disgust': 4 }
 
 		self.num_sample = 32
-
+		
+		"""
 		self.X = tf.placeholder(tf.float32, [None, self.num_sample, 26, 1])
 		self.Y = tf.placeholder(tf.float32, [None, len(self.EMOTIONS)])
 		self.keep_prob = tf.placeholder(tf.float32)
@@ -54,7 +55,33 @@ class Model():
 		self.batch_size = 32
 
 		self.epoch = 3 # 30
+		"""
 		
+	
+	def model_function(self, features, targets, mode=None, params=None):
+		# self.num_sample = 32
+
+		self.num_of_outputs = 10
+		self.L1 = tf.contrib.layers.relu(features, self.num_of_outputs)
+		self.L2 = tf.contrib.layers.reul(self.L1, self.num_of_outputs)
+		self.L3 = tf.contrib.layers.linear(self.L2, len(self.EMOTIONS))
+
+		predictions = tf.reshape(self.L3, [-1])
+		predictions_dict = { key: [] for key in self.EMOTIONS }
+		for key, val in self.EMOTIONS:
+			predictions_dict[key].append(predictions[val])
+
+		loss = tf.contrib.losses.mean_squared_error(predictions, targets)
+
+		train_op = tf.contrib.layers.optimize_loss(
+			loss=loss,
+			global_step=tf.contrib.framework.get_global_step(),
+			learning_rate=params['learning_rate'],
+			optimizer='SGD'
+		)
+
+		return predictions_dict, loss, train_op
+
 
 	def load_dataset(self, csv='./dataset/tess/dataset.csv'):
 		handle = open(csv, 'r')
