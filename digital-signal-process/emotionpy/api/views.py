@@ -4,6 +4,7 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 
 from Model import Model
+from speechpy import preprocessor
 
 model = Model()
 model.load_dataset()
@@ -24,7 +25,9 @@ def predict(request):
     elif request.method == 'POST':
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
-        data = body['data']
+        # data = body['data']
+        url = body['url']
+        data = preprocessor.download_and_process(url)
         prediction = model.predict(data)
         return JsonResponse({
             "message": "Hello Django!",
