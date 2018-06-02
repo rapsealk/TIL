@@ -21,20 +21,24 @@ class Model():
 
 		self.num_sample = 32
 
-		self.model = Sequential()
-		self.model.add(Conv2D(32, (2, 2), input_shape=(self.num_sample, 26, 1), padding='same', activation='relu'))
-		self.model.add(Conv2D(32, (2, 2), padding='same', activation='relu'))
-		self.model.add(MaxPool2D(pool_size=(2, 2)))
+		self.graph = tf.get_default_graph()
 
-		self.model.add(Conv2D(32, (2, 2), padding = 'same', activation='relu'))
-		self.model.add(Conv2D(32, (2, 2), padding = 'same', activation='relu'))
-		self.model.add(Flatten())
-		self.model.add(Dense(1024, activation='relu'))
-		# TODO(raise ValueError: Tensor("dense_2/Softmax:0", shape=(?, 5), dtype=float32) is not an element of this graph.)
-		self.model.add(Dense(len(self.EMOTIONS), activation='softmax'))
+		with self.graph.as_default():
 
-		# 모델 학습과정
-		self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+			self.model = Sequential()
+			self.model.add(Conv2D(32, (2, 2), input_shape=(self.num_sample, 26, 1), padding='same', activation='relu'))
+			self.model.add(Conv2D(32, (2, 2), padding='same', activation='relu'))
+			self.model.add(MaxPool2D(pool_size=(2, 2)))
+
+			self.model.add(Conv2D(32, (2, 2), padding = 'same', activation='relu'))
+			self.model.add(Conv2D(32, (2, 2), padding = 'same', activation='relu'))
+			self.model.add(Flatten())
+			self.model.add(Dense(1024, activation='relu'))
+			# TODO(raise ValueError: Tensor("dense_2/Softmax:0", shape=(?, 5), dtype=float32) is not an element of this graph.)
+			self.model.add(Dense(len(self.EMOTIONS), activation='softmax'))
+
+			# 모델 학습과정
+			self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 
 	def load_dataset(self, csv='./dataset/tess/dataset.csv'):
@@ -72,9 +76,10 @@ class Model():
 
 
 	def train(self):
-		hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=5, batch_size=32)
-		print('>> training result')
-		print(hist)
+		with self.graph.as_default():
+			hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=5, batch_size=32)
+			print('>> training result')
+			print(hist)
 
 	def test(self):
 		loss_and_metrics = self.model.evaluate(self.test_data_x, self.test_data_y, batch_size=32)
@@ -82,18 +87,24 @@ class Model():
 		print(loss_and_metrics)
 
 	def predict(self, x):
-		x = np.array([x]).reshape(-1, self.num_sample, 26, 1)
 
-		# self.model._make_predict_function()
-		prediction = self.model.predict(x, batch_size=32)
+		with self.graph.as_default():
+			x = np.array([x]).reshape(-1, self.num_sample, 26, 1)
+			# x = self.train_data_x[:2]
 
-		return {
-			'happy': prediction[0][0],
-			'neutral': prediction[0][1],
-			'sad': prediction[0][2],
-			'angry': prediction[0][3],
-			'disgust': prediction[0][4]
-		}
+			# self.model._make_predict_function()
+			prediction = self.model.predict(x, batch_size=32)
+
+			print('prediction:', prediction)
+			print(type(prediction))
+
+			return {
+				'happy': float(prediction[0][0]),
+				'neutral': float(prediction[0][1]),
+				'sad': float(prediction[0][2]),
+				'angry': float(prediction[0][3]),
+				'disgust': float(prediction[0][4])
+			}
 
 	def save(self):
 		self.model.save('cnn_emotion.h5')

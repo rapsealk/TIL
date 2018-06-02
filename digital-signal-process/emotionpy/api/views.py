@@ -3,8 +3,7 @@ from django.shortcuts import render
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-# from Model import Model
-from tfModel import Model
+from Model import Model
 
 model = Model()
 model.load_dataset()
@@ -23,13 +22,11 @@ def predict(request):
         })
     
     elif request.method == 'POST':
-        """
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
         data = body['data']
         prediction = model.predict(data)
-        """
         return JsonResponse({
             "message": "Hello Django!",
-            "predictions": [] # prediction
+            "predictions": prediction
         })
