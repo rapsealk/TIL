@@ -3,6 +3,7 @@ from speechpy import delta
 from speechpy import log_filter_bank
 import scipy.io.wavfile as wav
 
+import os
 import urllib.request
 
 def download_and_process(url):
@@ -14,5 +15,7 @@ def download_and_process(url):
 
     rate, signal = wav.read(path)
     filter_bank_feature = log_filter_bank(signal, rate)
+
+    os.remove(path)
 
     return filter_bank_feature[:num_sample, :]
