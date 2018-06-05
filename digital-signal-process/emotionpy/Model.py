@@ -20,6 +20,7 @@ class Model():
 		self.EMOTIONS = { 'happy': 0, 'neutral': 1, 'sad': 2, 'angry': 3, 'disgust': 4 }
 
 		self.num_sample = 32
+		self.epochs = 1
 
 		self.graph = tf.get_default_graph()
 
@@ -77,7 +78,7 @@ class Model():
 
 	def train(self):
 		with self.graph.as_default():
-			hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=5, batch_size=32)
+			hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=self.epochs, batch_size=32)
 			print('>> training result')
 			print(hist)
 
