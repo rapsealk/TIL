@@ -3,7 +3,8 @@ from django.shortcuts import render
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from Model import Model
+from Modelnlp import Model
+# from Model import Model
 from speechpy import preprocessor
 from speechpy.raw_socket import TCPSocket
 
@@ -21,8 +22,14 @@ def index(request):
 def predict(request):
 
     if request.method == 'GET':
+
+        url = 'https://firebasestorage.googleapis.com/v0/b/kaubrain418.appspot.com/o/lsj%2F%5B%E1%84%8B%E1%85%A7%E1%86%AB%E1%84%87%E1%85%A1%E1%86%AF%5D%20Angry18.WAV?alt=media&token=9f2aee11-8b35-49e6-b05b-7b64700b7bd4'
+        data = preprocessor.download_and_process(url)
+        prediction = model.predict(data)
+
         return JsonResponse({
-            "message": "Only POST method is available."
+            "message": "Only POST method is available.",
+            "predictions": prediction
         })
     
     elif request.method == 'POST':
@@ -31,6 +38,7 @@ def predict(request):
         # data = body['data']
         url = body['url']
 
+        """
         sockett = TCPSocket()
         SEOWJIN = '192.168.166.153'
         ADDRESS = '192.168.162.195'
@@ -39,6 +47,7 @@ def predict(request):
         sockett.send(url + '\n')
         gscore = sockett.receive()
         sockett.close()
+        """
 
         data = preprocessor.download_and_process(url)
         prediction = model.predict(data)

@@ -20,14 +20,16 @@ class Model():
 		self.EMOTIONS = { 'happy': 0, 'neutral': 1, 'sad': 2, 'angry': 3, 'disgust': 4 }
 
 		self.num_sample = 32
-		self.epochs = 30
+		self.epochs = 1
 
 		self.graph = tf.get_default_graph()
 
 		with self.graph.as_default():
 
+			self.input_size = 26 + 1
+
 			self.model = Sequential()
-			self.model.add(Conv2D(32, (2, 2), input_shape=(self.num_sample, 26, 1), padding='same', activation='relu'))
+			self.model.add(Conv2D(32, (2, 2), input_shape=(self.num_sample, self.input_size, 1), padding='same', activation='relu'))
 			self.model.add(Conv2D(32, (2, 2), padding='same', activation='relu'))
 			self.model.add(MaxPool2D(pool_size=(2, 2)))
 
@@ -58,12 +60,20 @@ class Model():
 			rate, signal = wav.read('./dataset/tess/' + target_emotion + '/' + filename)
 			filter_bank_feature = log_filter_bank(signal, rate)
 
-			processed_x.append(filter_bank_feature[:self.num_sample, :])
+			val = filter_bank_feature[:self.num_sample, :].tolist()
+			for i in range(len(val)):
+				val[i].append(float(0))
+
+			processed_x.append(np.array(val))
+			# processed_x.append(filter_bank_feature[:self.num_sample, :])
 			processed_y.append(self.EMOTIONS[target_emotion])
+
+			#processed_x[-1][0].append(float(0))
+			#processed_x[-1][1].append(float(0))
 			# print('\nemotion:', target_emotion)
 			# print(filter_bank_feature[:self.num_sample, :])
 
-		processed_x = np.array(processed_x).reshape(-1, self.num_sample, 26, 1)
+		processed_x = np.array(processed_x).reshape(-1, self.num_sample, self.input_size, 1)
 		processed_y = np_utils.to_categorical(processed_y)
 
 		train_data_ratio = 0.9
