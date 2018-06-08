@@ -100,7 +100,12 @@ class Model():
 	def predict(self, x):
 
 		with self.graph.as_default():
-			x = np.array([x]).reshape(-1, self.num_sample, 26, 1)
+
+			x = x.tolist()
+			for i in range(len(x)):
+				x[i].append(float(0))
+
+			x = np.array([x]).reshape(-1, self.num_sample, self.input_size, 1)
 			# x = self.train_data_x[:2]
 
 			# self.model._make_predict_function()
