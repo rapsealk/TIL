@@ -164,11 +164,21 @@ class Model():
 	def predict(self, x, alpha):
 
 		with self.graph.as_default():
+<<<<<<< HEAD
 			x = x.tolist()
 			for i in range(len(x)):
 				x[i].append(alpha)
 
 			x = np.array([x]).reshape(-1, self.num_sample, self.input_size, 1)
+=======
+
+			x = x.tolist()
+			for i in range(len(x)):
+				x[i].append(float(0))
+
+			x = np.array([x]).reshape(-1, self.num_sample, self.input_size, 1)
+			# x = self.train_data_x[:2]
+>>>>>>> d471e0103b83e6b272c1f6bc6435527aa3e04859
 
 			prediction = self.model.predict(x, batch_size=32)
 
