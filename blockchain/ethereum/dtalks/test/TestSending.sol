@@ -12,7 +12,7 @@ contract TestSending {
         string memory message = "Test Message";
         bytes32 returnedHash = sending.sendMessage(message);
 
-        bytes32 expected = keccak256(abi.encodePacked(block.timestamp, this, message));
+        bytes32 expected = keccak256(abi.encodePacked(block.number, this, message));
 
         Assert.equal(returnedHash, expected, "Transaction hash from sending message is not correct.");
     }
