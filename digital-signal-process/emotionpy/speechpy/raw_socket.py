@@ -1,5 +1,4 @@
 import socket
-# from socket import socket
 
 class TCPSocket():
 
@@ -23,6 +22,14 @@ class TCPSocket():
 
     def close(self):
         self.socket.close()
+
+    def read_gapi(self, url):
+        ADDRESS = '192.168.195.186'
+        self.connect(ADDRESS, 5000)
+        self.send(url + '\n')
+        gapi = float(self.receive())
+        self.close()
+        return gapi
 
 
 if __name__ == '__main__':

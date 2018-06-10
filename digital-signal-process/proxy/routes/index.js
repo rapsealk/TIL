@@ -6,7 +6,7 @@ const axios = require('axios');
 router.get('/', function(req, res) {
 
 	res.json({ key: "value" });
-})
+});
 
 router.post('/predict', async function(req, res) {
 
@@ -16,7 +16,7 @@ router.post('/predict', async function(req, res) {
 		url: req.body.url
 	});
 
-	console.log('response:', response)
+	console.log('response:', response);
 
 	res.json({ message: 'Done', predictions: response.data.predictions });	
 });
