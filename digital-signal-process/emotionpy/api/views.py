@@ -8,11 +8,9 @@ from Modelnlp import Model
 from speechpy import preprocessor
 from speechpy.raw_socket import TCPSocket
 
-import threading
-
 model = Model()
 #model.load_dataset()
-model.load_dataset_for_gapi()
+model.load_dataset_for_gapi(external=False)
 model.train()
 #model.load_dataset()
 #model.train()

@@ -7,6 +7,8 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Conv2D, MaxPool2D
 from keras.layers import Flatten, Dropout
 
+#import matplotlib
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from speechpy import mfcc
@@ -27,6 +29,8 @@ class Model():
 
 		self.num_sample = 32
 		self.epochs = 30
+
+		# self.event_queue = queue.Queue()
 
 		self.graph = tf.get_default_graph()
 
@@ -54,7 +58,7 @@ class Model():
 		handle = open(csv, 'r')
 		rawlines = handle.read().split('\n')
 		handle.close()
-		datalist = [line.split(',') for line in rawlines]#[:1]
+		datalist = [line.split(',') for line in rawlines]
 		shuffle(datalist)
 
 		processed_x = []
@@ -89,40 +93,38 @@ class Model():
 		self.test_data_y = processed_y[num_train_data:]
 
 
-	def load_dataset_for_gapi(self):
-		handle = open(os.path.dirname(__file__) + '/dataset/firebase.csv', 'r')
+	def load_dataset_for_gapi(self, external=True, csv='/dataset/firebase.csv'):
+
+		handle = open(os.path.dirname(__file__) + csv, 'r')
 		datalist = [line.replace('\n', '').split(',') for line in handle.readlines()]
 		handle.close()
-		# print(datalist)
+
 		shuffle(datalist)
 
 		processed_x = []
 		processed_y = []
 
-		recorder = open(os.path.dirname(__file__) + '/dataset/i' + str(time()).split('.')[0] + '.csv', 'w')
+		#recorder = open(os.path.dirname(__file__) + '/dataset/i' + str(time()).split('.')[0] + '.csv', 'w')
 
-		for url, target_emotion in datalist:
-			
-			filter_bank_feature = preprocessor.download_and_process(url)
+		for url, target_emotion, alpha in datalist:
 
-			# TODO("bind")
-			sockett = TCPSocket()
-			# ADDRESS = '127.0.0.1'
-			ADDRESS = '192.168.195.186'
-			sockett.connect(ADDRESS, 5000)
-			print('url:', url)
-			sockett.send(url + '\n')
-			alpha = float(sockett.receive())
-			sockett.close()
-			# TODO("socket")
-			alpha = float(0)
-			
-			# sockett = TCPSocket()
-			# alpha = sockett.read_gapi(url)
+			if external:
+				sockett = TCPSocket()
+				ADDRESS = '192.168.195.186'
+				sockett.connect(ADDRESS, 5000)
+				print('url:', url)
+				sockett.send(url + '\n')
+				alpha = float(sockett.receive())
+				sockett.close()
+				# sockett = TCPSocket()
+				# alpha = sockett.read_gapi(url)
+				filter_bank_feature = preprocessor.download_and_process(url)
+			else:
+				alpha = float(alpha)
+				filter_bank_feature = preprocessor.load_and_process(url)
 
-			recorder.write('{},{},{}\n'.format(url, target_emotion, alpha))
+			#recorder.write('{},{},{}\n'.format(url, target_emotion, alpha))
 
-			# train with 0 value
 			val = filter_bank_feature[:self.num_sample, :].tolist()
 			for i in range(len(val)):
 				val[i].append(alpha)
@@ -132,10 +134,7 @@ class Model():
 			processed_x.append(np.array(val))
 			processed_y.append(self.EMOTIONS[target_emotion])
 
-		recorder.close()
-
-		processed_x = processed_x[:3]
-		processed_y = processed_y[:3]
+		#recorder.close()
 
 		processed_x = np.array(processed_x).reshape(-1, self.num_sample, self.input_size, 1)
 		processed_y = np_utils.to_categorical(processed_y)
@@ -151,18 +150,48 @@ class Model():
 
 	def train(self):
 		with self.graph.as_default():
-			hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=self.epochs, batch_size=32)
+			self.hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=self.epochs, batch_size=32)
 			print('>> training result')
-			# print(hist)
-			#return self.histogram(hist)
+			print(self.hist)
+			print('history.loss:', self.hist.history['loss'])
+			print('history.acc:', self.hist.history['acc'])
+		
+			try:
+				print('>> a')
+				fig, loss_ax = plt.subplots()
+				print('>> b')
+				acc_ax = loss_ax.twinx()
+				print('>> c')
+				loss_ax.plot(self.hist.history['loss'], 'y', label='train loss')
+				print('>> d')
+				acc_ax.plot(self.hist.history['acc'], 'b', label='train acc')
+				print('>> e')
+				loss_ax.set_xlabel('epoch')
+				print('>> f')
+				loss_ax.set_ylabel('loss')
+				print('>> g')
+				acc_ax.set_ylabel('accuray')
+				print('>> h')
+				loss_ax.legend(loc='upper left')
+				print('>> i')
+				acc_ax.legend(loc='lower left')
+				print('>> plot')
+				
+				plt.show()
+				# fig.savefig('{}.png'.fotmat(time()))
+
+			except: # Error as e:
+				print('>> Exception')
+				# print(e)
+
 
 	def test(self):
-		loss_and_metrics = self.model.evaluate(self.test_data_x, self.test_data_y, batch_size=32)
-		print('>> test result')
-		print(loss_and_metrics)
+		with self.graph.as_default():
+			loss_and_metrics = self.model.evaluate(self.test_data_x, self.test_data_y, batch_size=32)
+			print('>> test result')
+			print(loss_and_metrics)
 
 	def predict(self, x, alpha):
-
 		with self.graph.as_default():
 			x = x.tolist()
 			for i in range(len(x)):
@@ -183,25 +212,9 @@ class Model():
 				'disgust': float(prediction[0][4])
 			}
 
+
 	def save(self):
 		self.model.save('cnn_emotion.h5')
 
 	def load(self):
 		self.model = load_model('cnn_emotion.h5')
-"""	
-	def histogram(self, hist):
-		try:
-			print('>> plot')
-			fig, loss_ax = plt.subplots()
-			acc_ax = loss_ax.twinx()
-			loss_ax.plot(hist.history['loss'], 'y', label='train loss')
-			acc_ax.plot(hist.history['acc'], 'b', label='train acc')
-			loss_ax.set_xlabel('epoch')
-			loss_ax.set_ylabel('loss')
-			acc_ax.set_ylabel('accuray')
-			loss_ax.legend(loc='upper left')
-			acc_ax.legend(loc='lower left')
-			plt.show()
-		except:
-			print('asdfhaskfdjhaksjdfhaksjdfhalkdsjfhlkjfhasdkfjhasldkfhdas')
-"""
