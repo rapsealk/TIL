@@ -10,17 +10,20 @@ from keras.layers import Flatten, Dropout
 from speechpy import mfcc
 from speechpy import delta
 from speechpy import log_filter_bank
+from speechpy import preprocessor
 import scipy.io.wavfile as wav
+
+import matplotlib.pyplot as plt
 
 from random import shuffle
 
 class Model():
 
 	def __init__(self):
-		self.EMOTIONS = { 'happy': 0, 'neutral': 1, 'sad': 2, 'angry': 3, 'disgust': 4 }
+		self.EMOTIONS = { 'happy': 0, 'neutral': 1, 'sad': 2, 'angry': 3 }
 
 		self.num_sample = 32
-		self.epochs = 30
+		self.epochs = 20
 
 		self.graph = tf.get_default_graph()
 
@@ -42,7 +45,8 @@ class Model():
 			self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 
-	def load_dataset(self, csv='./dataset/tess/dataset.csv'):
+	def load_dataset(self, csv='./dataset/firebase.csv'):
+	# def load_dataset(self, csv='./dataset/tess/dataset.csv'):
 		handle = open(csv, 'r')
 		rawlines = handle.read().split('\n')
 		handle.close()
@@ -52,16 +56,16 @@ class Model():
 		processed_x = []
 		processed_y = []
 
-		for filename, target_emotion in datalist:
-			if filename in ['YAF_germ_angry.wav']: continue
+		for url, target_emotion, alpha in datalist:
+			# if filename in ['YAF_germ_angry.wav']: continue
 
-			rate, signal = wav.read('./dataset/tess/' + target_emotion + '/' + filename)
-			filter_bank_feature = log_filter_bank(signal, rate)
+			# rate, signal = wav.read('./dataset/tess/' + target_emotion + '/' + filename)
+			# filter_bank_feature = log_filter_bank(signal, rate)
+			filter_bank_feature = preprocessor.load_and_process(url)
 
-			processed_x.append(filter_bank_feature[:self.num_sample, :])
+			processed_x.append(filter_bank_feature)
+			# processed_x.append(filter_bank_feature[:self.num_sample, :])
 			processed_y.append(self.EMOTIONS[target_emotion])
-			# print('\nemotion:', target_emotion)
-			# print(filter_bank_feature[:self.num_sample, :])
 
 		processed_x = np.array(processed_x).reshape(-1, self.num_sample, 26, 1)
 		processed_y = np_utils.to_categorical(processed_y)
@@ -77,10 +81,14 @@ class Model():
 
 
 	def train(self):
+
+		self.load_dataset()
+
 		with self.graph.as_default():
 			hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=self.epochs, batch_size=32)
 			print('>> training result')
 			print(hist)
+			self.histogram(hist)
 
 	def test(self):
 		loss_and_metrics = self.model.evaluate(self.test_data_x, self.test_data_y, batch_size=32)
@@ -109,10 +117,29 @@ class Model():
 
 	def save(self):
 		self.model.save('cnn_emotion.h5')
-		# self.model.save_weights('cnn_emotion_weights.h5')
-		# arch_file = open('cnn_emotion_model.json', 'w')
-		# arch_file.write(self.model.to_json())
-		# arch_file.close()
 
 	def load(self):
 		self.model = load_model('cnn_emotion.h5')
+
+	def histogram(self, hist):
+		fig, loss_ax = plt.subplots()
+
+		acc_ax = loss_ax.twinx()
+
+		loss_ax.plot(hist.history['loss'], 'y', label='train loss')
+		acc_ax.plot(hist.history['acc'], 'b', label='train acc')
+
+		loss_ax.set_xlabel('epoch')
+		loss_ax.set_ylabel('loss')
+		acc_ax.set_ylabel('accuray')
+
+		loss_ax.legend(loc='upper left')
+		acc_ax.legend(loc='lower left')
+
+		plt.show()
+
+
+if __name__ == '__main__':
+	model = Model()
+	model.load_dataset()
+	model.train()

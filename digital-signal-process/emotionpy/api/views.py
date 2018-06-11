@@ -10,10 +10,11 @@ from speechpy.raw_socket import TCPSocket
 
 model = Model()
 #model.load_dataset()
-model.load_dataset_for_gapi(external=False)
+#model.load_dataset_for_gapi(external=False)
 model.train()
 #model.load_dataset()
 #model.train()
+#model.test()
 
 # Create your views here.
 def index(request):
@@ -39,8 +40,9 @@ def predict(request):
         # data = body['data']
         url = body['url']
 
-        sockett = TCPSocket()
-        gapi = sockett.read_gapi(url)
+        #sockett = TCPSocket()
+        #gapi = sockett.read_gapi(url)
+        gapi = float(0)
 
         data = preprocessor.download_and_process(url)
         prediction = model.predict(data, gapi)

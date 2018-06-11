@@ -7,8 +7,6 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Conv2D, MaxPool2D
 from keras.layers import Flatten, Dropout
 
-#import matplotlib
-#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from speechpy import mfcc
@@ -28,9 +26,7 @@ class Model():
 		self.EMOTIONS = { 'happy': 0, 'neutral': 1, 'sad': 2, 'angry': 3 }
 
 		self.num_sample = 32
-		self.epochs = 30
-
-		# self.event_queue = queue.Queue()
+		self.epochs = 20
 
 		self.graph = tf.get_default_graph()
 
@@ -149,41 +145,17 @@ class Model():
 		self.test_data_y = processed_y[num_train_data:]
 
 	def train(self):
+
+		self.load_dataset_for_gapi(external=False)
+
 		with self.graph.as_default():
-			self.hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=self.epochs, batch_size=32)
+			hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=self.epochs, batch_size=32)
 			print('>> training result')
-			print(self.hist)
-			print('history.loss:', self.hist.history['loss'])
-			print('history.acc:', self.hist.history['acc'])
-		
-			try:
-				print('>> a')
-				fig, loss_ax = plt.subplots()
-				print('>> b')
-				acc_ax = loss_ax.twinx()
-				print('>> c')
-				loss_ax.plot(self.hist.history['loss'], 'y', label='train loss')
-				print('>> d')
-				acc_ax.plot(self.hist.history['acc'], 'b', label='train acc')
-				print('>> e')
-				loss_ax.set_xlabel('epoch')
-				print('>> f')
-				loss_ax.set_ylabel('loss')
-				print('>> g')
-				acc_ax.set_ylabel('accuray')
-				print('>> h')
-				loss_ax.legend(loc='upper left')
-				print('>> i')
-				acc_ax.legend(loc='lower left')
-				print('>> plot')
-				
-				plt.show()
-				# fig.savefig('{}.png'.fotmat(time()))
+			print(hist)
+			print('history.loss:', hist.history['loss'])
+			print('history.acc:', hist.history['acc'])
 
-			except: # Error as e:
-				print('>> Exception')
-				# print(e)
-
+			# self.histogram(hist)
 
 	def test(self):
 		with self.graph.as_default():
@@ -208,8 +180,7 @@ class Model():
 				'happy': float(prediction[0][0]),
 				'neutral': float(prediction[0][1]),
 				'sad': float(prediction[0][2]),
-				'angry': float(prediction[0][3]),
-				'disgust': float(prediction[0][4])
+				'angry': float(prediction[0][3])
 			}
 
 
@@ -218,3 +189,21 @@ class Model():
 
 	def load(self):
 		self.model = load_model('cnn_emotion.h5')
+
+	def histogram(self, hist):
+		try:
+			fig, loss_ax = plt.subplots()
+			acc_ax = loss_ax.twinx()
+			loss_ax.plot(hist.history['loss'], 'y', label='train loss')
+			acc_ax.plot(hist.history['acc'], 'b', label='train acc')
+			loss_ax.set_xlabel('epoch')
+			loss_ax.set_ylabel('loss')
+			acc_ax.set_ylabel('accuray')
+			loss_ax.legend(loc='upper left')
+			acc_ax.legend(loc='lower left')
+			
+			plt.show()
+
+		except: # Error as e:
+			print('>> Exception')
+			# print(e)
