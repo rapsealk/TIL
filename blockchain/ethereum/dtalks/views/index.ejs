@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="apple-touch-icon" sizes="76x76" href="img/favicon.ico">
+	<link rel="icon" type="image/png" href="img/favicon.ico">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+	<title>DTALKS | Decentralized Talks</title>
+
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+
+	<!--     Fonts and icons     -->
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700" />
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+	<!-- CSS Files -->
+	<link href="css/bootstrap.min.css" rel="stylesheet" />
+	<link href="css/material-kit.css" rel="stylesheet"/>
+
+	<!-- CSS Just for demo purpose, don't include it in your project -->
+	<link href="css/demo.css" rel="stylesheet" />
+
+	<!-- Dropify -->
+	<link href="css/dropify.min.css" rel="stylesheet"/>
+
+	<!-- Chat -->
+	<link rel="stylesheet" type="text/css" href="/template/chat/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/template/chat/font-awesome/css/font-awesome.min.css" />
+	<link rel="stylesheet" type="text/css" href="/template/chat/css/default.css" />
+</head>
+
+<body class="tutorial-page">
+
+<nav class="navbar navbar-warning navbar-transparent navbar-fixed-top navbar-color-on-scroll" role="navigation">
+	<div class="container">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button id="menu-toggle" type="button" class="navbar-toggle">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar bar1"></span>
+			<span class="icon-bar bar2"></span>
+			<span class="icon-bar bar3"></span>
+			</button>
+			<a href="/">
+				<div class="logo-container">
+					<div class="logo">
+						<img src="img/favicon.ico" alt="Creative Tim Logo">
+					</div>
+					<div class="brand">
+						Ethereum Rewards
+					</div>
+				</div>
+			</a>
+		</div>
+
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse">
+			<ul  class="nav navbar-nav navbar-right">
+				<li>
+					<a href="#"><%= account %></a>
+				</li>
+				<li>
+					<a href="#"><%= amount %> DTSTs</a>
+				</li>
+				<li>
+					<a href="https://github.com/rapsealk/dapp/issues">Have an issue?
+						<i class="fa fa-github"></i>
+					</a>
+				</li>
+			</ul>
+		</div><!-- /.navbar-collapse -->
+	</div><!-- /.container-fluid -->
+</nav>
+
+<div class="wrapper">
+	<div class="header header-filter" style="background-image: url('img/backgrounds/minions.jpg');">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6 col-md-offset-3">
+					<h1 class="title text-center">Bananathereum</h1>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="main main-raised">
+		<div class="section">
+			<div class="container">
+				
+				<!-- FORM
+				<div class="row tim-row">
+					<h2 class="text-center">Short Description and Usage</h2>
+					<legend></legend>
+					<div class="col-md-8 col-md-offset-2">
+						<p>
+							<b>Material Kit</b> is a beautiful resource built for Bootstrap. It was made over the powerful <a href="http://fezvrasta.github.io/bootstrap-material-design/" target="_blank">Bootstrap Material Design</a>. We used and have redesigned all components to make it look flat, minimalist and easy to use. We are proud of this new Bootstrap skin and the possibilities for customisation.
+						</p>
+						<p>
+							Using it is very simple and it will enable you to refresh you classic looking application. To get the desired effect you will also need to integrate JS plugins that take a little bit more effort. It the end the result will be worth it.
+						</p>
+					</div>
+				</div>
+
+				<div class="row tim-row">
+					<div class="col-md-12">
+						<form method="post" action="/upload" enctype="multipart/form-data">
+							<input type="file" class="dropify" name="file" data-default-file="">
+							<button type="submit" class="btn btn-danger">
+								Offer
+							</button>
+							<button class="btn btn-info">
+								Cancel
+							</button>
+						</form>
+					</div>
+				</div>
+				-->
+
+				<!-- CHAT BEGIN -->
+				<div class="panel panel-info pb-chat-panel">
+                    <div class="panel panel-heading pb-chat-panel-heading">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div>
+                                    <label id="support_label" style="color: white;">Live chat</label>
+                                </div>
+                                <!--a href="#"><span class="fa fa-cog pull-right pb-chat-top-icons"></span></a>
+                                <a href="#"><span class="fa fa-share pull-right pb-chat-top-icons"></span></a-->
+                            </div>
+                        </div>
+                    </div>
+                    <div id="message-scroll" class="panel-body" style="background-color: #77222222; overflow: auto; height: 360px;">
+                        <form id="message-box">
+							<!-- friend's message -->
+                            <div class="form-group">
+                                <span class="fa fa-lg fa-user pb-chat-fa-user"></span><span class="label label-default pb-chat-labels pb-chat-labels-left">Hi, how are you?</span>
+                            </div>
+                            <!--hr-->
+							<!-- my message -->
+                            <div class="form-group pull-right pb-chat-labels-right">
+                                <span class="label label-primary pb-chat-labels pb-chat-labels-primary">Hi, i'm fine, you?</span><span class="fa fa-lg fa-user pb-chat-fa-user"></span>
+                            </div>
+                            <div class="clearfix"></div>
+                            <!--hr-->
+                            <div class="form-group">
+                                <span class="fa fa-lg fa-user pb-chat-labels pb-chat-fa-user"></span><span class="label label-default pb-chat-labels pb-chat-labels-left">I'm great, wanna hangout?</span>
+                            </div>
+                            <!--hr-->
+                            <div class="form-group pull-right pb-chat-labels-right">
+                                <span class="label label-primary pb-chat-labels pb-chat-labels-primary">No, huehuehue</span><span class="fa fa-lg fa-user pb-chat-fa-user"></span>
+                            </div>
+                            <div class="clearfix"></div>
+                            <!--hr-->
+                            <div class="form-group pull-right pb-chat-labels-right">
+                                <span class="label label-primary pb-chat-labels pb-chat-labels-primary">I'm busy hanging out :D</span><span class="fa fa-lg fa-user pb-chat-fa-user"></span>
+                            </div>
+                            <div class="clearfix"></div>
+                        </form>
+                    </div>
+                    <div class="panel-footer">
+                        <div class="row">
+                            <div class="col-xs-10">
+                                <textarea id="ta-message" class="form-control pb-chat-textarea" placeholder="Type your message here..."></textarea>
+                            </div>
+                            <div class="col-xs-2 pb-btn-circle-div">
+                                <button id="btn-send" class="btn btn-primary btn-circle pb-chat-btn-circle"><span class="fa fa-chevron-right"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+				<!-- CHAT END -->
+
+			</div>
+		</div>
+	</div>
+</div>
+<footer class="footer footer-transparent">
+	<div class="container">
+		<nav class="pull-left">
+			<ul>
+				<li>
+					<a href="https://github.com/rapsealk">
+						rapsealk
+					</a>
+				</li>
+				<li>
+					<a href="https://github.com/rattitude">
+						 About Us
+					</a>
+				</li>
+				<li>
+					<a href="https://rapsealk.github.io/">
+						 Blog
+					</a>
+				</li>
+				<li>
+					<a href="http://www.creative-tim.com/license">
+						Licenses
+					</a>
+				</li>
+			</ul>
+		</nav>
+		<div class="social-area pull-right">
+			<a class="btn btn-social btn-github btn-just-icon" href="https://github.com/rapsealk">
+				<i class="fa fa-github"></i>
+			</a>
+			<a class="btn btn-social btn-twitter btn-just-icon" href="https://twitter.com/rapsealk">
+				<i class="fa fa-twitter"></i>
+			</a>
+			<a class="btn btn-social btn-facebook btn-just-icon" href="https://www.facebook.com/rapsealk">
+				<i class="fa fa-facebook-square"></i>
+			</a>
+		</div>
+		<div class="copyright">
+			&copy; <%= new Date().getFullYear() %> Rattitude, made with love
+		</div>
+	</div>
+</footer>
+
+</body>
+	<!--   Core JS Files   -->
+	<script src="js/jquery.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="js/material.min.js"></script>
+
+	<!-- Chat
+	<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+	-->
+
+	<!-- Control Center for Material Kit: activating the ripples, parallax effects, scripts from the example pages etc -->
+	<script src="js/material-kit.js" type="text/javascript"></script>
+
+	<!-- Dropify -->
+	<script src="js/dropify.min.js" type="text/javascript"></script>
+
+	<!--script src="js/web3.min.js" type="text/javascript"></script>
+	<script src="js/truffle-contract.js" type="text/javascript"></script>
+	<script src="js/app.js" type="text/javascript"></script-->
+
+	<script>
+		$().ready(function(){
+			$(window).on('scroll', materialKit.checkScrollForTransparentNavbar);
+			$('.dropify').dropify();
+
+			$('#btn-send').on('click', function(e) {
+				e.preventDefault();
+				var message = $('#ta-message');
+
+				$('#message-box').append(
+					'<div class="form-group pull-right pb-chat-labels-right">' +
+						'<span class="label label-primary pb-chat-labels pb-chat-labels-primary">' + message.val() + '</span><span class="fa fa-lg fa-user pb-chat-fa-user"></span>' +
+                    '</div>' +
+					'<div class="clearfix"></div>'
+				);
+
+				var messageScroll = $('#message-scroll');
+				messageScroll.scrollTop(messageScroll.height());
+
+				message.val('');
+			});
+		});
+	</script>
+</html>
