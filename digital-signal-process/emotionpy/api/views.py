@@ -40,9 +40,9 @@ def predict(request):
         # data = body['data']
         url = body['url']
 
-        #sockett = TCPSocket()
-        #gapi = sockett.read_gapi(url)
-        gapi = float(0)
+        sockett = TCPSocket()
+        gapi = sockett.read_gapi(url)
+        # gapi = float(0)
 
         data = preprocessor.download_and_process(url)
         prediction = model.predict(data, gapi)
