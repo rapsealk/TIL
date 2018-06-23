@@ -60,7 +60,6 @@ app.set('port', port);
 
 const server = http.createServer(app);
 const io = require('socket.io')(server);
-// const io = socketIO(server);
 require('./controllers/io.controller').initSocket(io);
 
 /**

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity ^0.4.24; // ^0.4.18
 
 contract Token {
 
@@ -11,11 +11,13 @@ contract Token {
 
     event Transfer(address indexed _from, address indexed _to, uint256 _amount);
 
-    constructor(uint256 initialAmount) public {
+    constructor
+    // function Token
+        (uint256 initialAmount) public {
         balanceOf[msg.sender] = initialAmount;
     }
 
-    function transfer(address _to, uint256 _amount) public returns (bool success) {
+    function transfer(address _to, uint256 _amount) public { // returns (bool success) {
         // TODO("modifier")
         require(balanceOf[msg.sender] >= _amount);
         if (balanceOf[_to] + _amount < balanceOf[_to]) revert();
@@ -24,6 +26,6 @@ contract Token {
         balanceOf[_to] += _amount;
         emit Transfer(msg.sender, _to, _amount);
 
-        return true;
+        // return true;
     }
 }

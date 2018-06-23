@@ -246,7 +246,7 @@
 			$(window).on('scroll', materialKit.checkScrollForTransparentNavbar);
 			$('.dropify').dropify();
 
-			var socket = io.connect('http://localhost:3000');
+			var socket = io.connect('http://<%= IP_ADDRESS %>:3000');
 			socket.on('connect', function() {
 				console.log('socket connected');
 			});

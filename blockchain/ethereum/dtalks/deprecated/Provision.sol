@@ -12,7 +12,7 @@ contract Provision {
     mapping (address => uint256) public balanceOf;
 
     constructor(
-        address ifSuccessfulSendTo,
+        address ifSuccessfulSendTo,         // 0xab7c4dde3fCbbA0dd47b7B98C8cb15B59103A600
         uint etherCostOfEachToken,
         address addressOfTokenUsedAsReward
     ) public {

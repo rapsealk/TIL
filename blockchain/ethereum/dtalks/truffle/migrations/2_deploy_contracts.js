@@ -1,7 +1,7 @@
 var Token = artifacts.require("./Token.sol");
-var Provision = artifacts.require("./Provision.sol");
+var Keep = artifacts.require("./Keep.sol");
 
 module.exports = function(deployer) {
     deployer.deploy(Token);
-    deployer.deploy(Provision);
+    deployer.deploy(Keep);
 };
