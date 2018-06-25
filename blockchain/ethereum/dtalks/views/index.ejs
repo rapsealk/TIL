@@ -133,30 +133,31 @@
                     </div>
                     <div id="message-scroll" class="panel-body" style="background-color: #77222222; overflow: auto; height: 360px;">
                         <form id="message-box">
-							<!-- friend's message -->
+							<% /* friend's message %>
                             <div class="form-group">
                                 <span class="fa fa-lg fa-user pb-chat-fa-user"></span><span class="label label-default pb-chat-labels pb-chat-labels-left">Hi, how are you?</span>
                             </div>
-                            <!--hr-->
-							<!-- my message -->
+							<hr>
+							<% my message %>
                             <div class="form-group pull-right pb-chat-labels-right">
                                 <span class="label label-primary pb-chat-labels pb-chat-labels-primary">Hi, i'm fine, you?</span><span class="fa fa-lg fa-user pb-chat-fa-user"></span>
                             </div>
                             <div class="clearfix"></div>
-                            <!--hr-->
+                            <hr>
                             <div class="form-group">
                                 <span class="fa fa-lg fa-user pb-chat-labels pb-chat-fa-user"></span><span class="label label-default pb-chat-labels pb-chat-labels-left">I'm great, wanna hangout?</span>
                             </div>
-                            <!--hr-->
+                            <hr>
                             <div class="form-group pull-right pb-chat-labels-right">
                                 <span class="label label-primary pb-chat-labels pb-chat-labels-primary">No, huehuehue</span><span class="fa fa-lg fa-user pb-chat-fa-user"></span>
                             </div>
                             <div class="clearfix"></div>
-                            <!--hr-->
+                            <hr>
                             <div class="form-group pull-right pb-chat-labels-right">
                                 <span class="label label-primary pb-chat-labels pb-chat-labels-primary">I'm busy hanging out :D</span><span class="fa fa-lg fa-user pb-chat-fa-user"></span>
                             </div>
                             <div class="clearfix"></div>
+							<% */ %>
                         </form>
                     </div>
                     <div class="panel-footer">
@@ -285,7 +286,7 @@
 				var messageScroll = $('#message-scroll');
 				messageScroll.scrollTop(messageScroll.height());
 
-				socket.emit('message', { message: message.val() });
+				socket.emit('message', { message: message.val(), from: '<%= account %>' });
 
 				message.val('');
 			});

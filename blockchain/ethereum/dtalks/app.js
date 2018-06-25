@@ -6,6 +6,7 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 
 const debug = require('debug')('dtalks:server');
 const http = require('http');
@@ -24,6 +25,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+    cookie: { maxAge: 1800000 /*expires: false*/ }, rolling: true,
+    secret: "-Y~''f>-toyo{B2o5JIhc9igj@Y22F",
+    resave: false,
+    saveUninitialized: false // true, https://www.npmjs.com/package/express-session#saveuninitialized
+}));
 
 app.use('/', index);
 

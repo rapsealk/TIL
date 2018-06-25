@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24; // ^0.4.18
+pragma solidity ^0.4.18;
 
 interface token {
     function transfer(address _to, uint256 _amount) external;
@@ -12,16 +12,9 @@ contract Keep {
     token public chatToken;
     uint public price;
 
-    mapping (address => uint) public balanceOf;
+    mapping (address => bytes32[]) public history;
 
     event MessageStored(address indexed sender, bytes message, uint gas);
-
-    /*
-    modifier hasEnoughCoin(address _sender, uint256 cost) {
-        require(balanceOf[_sender] >= cost);
-        _;
-    }
-    */
 
     constructor
     // function Keep
@@ -31,23 +24,15 @@ contract Keep {
         chatToken = token(addressOfToken);
         price = 1 ether;
     }
-
-    /*
-    function () payable public {
-        require(balanceOf[msg.sender] >= 0);
-        // address receiver = msg.to;
-        // uint256 amount = msg.value;
-        // bytes storage data = msg.data;
-        // uint256 gas = tx.gasprice;
-        message = bytes(msg.data);
-
-        emit MessageStored(msg.sender, msg.data, tx.gasprice);
-    }
-    */
     
     function keepMessage(string _message) public returns (uint) {
         message = bytes(_message);
+        history[msg.sender].push(block.blockhash(block.number));
         emit MessageStored(msg.sender, message, tx.gasprice);
         return block.number;
+    }
+
+    function getHistory() public view returns (bytes32[]) {
+        return history[msg.sender];
     }
 }
