@@ -34,12 +34,18 @@ class Model():
 			self.model.add(Conv2D(32, (2, 2), padding='same', activation='relu'))
 			self.model.add(MaxPool2D(pool_size=(2, 2)))
 
-			self.model.add(Conv2D(32, (2, 2), padding = 'same', activation='relu'))
-			self.model.add(Conv2D(32, (2, 2), padding = 'same', activation='relu'))
+			self.model.add(Conv2D(32, (2, 2), padding='same', activation='relu'))
+			self.model.add(Conv2D(32, (2, 2), padding='same', activation='relu'))
+			
+			self.model.add(MaxPool2D(pool_size=(2, 2)))
+			self.model.add(Conv2D(32, (2, 2), padding='same', activation='relu'))
+			self.model.add(Conv2D(32, (2, 2), padding='same', activation='softmax'))
+			self.model.add(MaxPool2D(pool_size=(4, 4)))
 			self.model.add(Flatten())
-			self.model.add(Dense(1024, activation='relu'))
-			# TODO(raise ValueError: Tensor("dense_2/Softmax:0", shape=(?, 5), dtype=float32) is not an element of this graph.)
-			self.model.add(Dense(len(self.EMOTIONS), activation='softmax'))
+			#self.model.add(Dropout(rate=0.75))
+
+			self.model.add(Dense(128, activation='relu'))
+			self.model.add(Dense(len(self.EMOTIONS), activation='sigmoid'))
 
 			# 모델 학습과정
 			self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
