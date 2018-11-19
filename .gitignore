@@ -2,3 +2,7 @@ node_modules/
 __pycache__/
 dbconfig.json
 *.wav
+
+.idea/
+*.class
+*.iml
