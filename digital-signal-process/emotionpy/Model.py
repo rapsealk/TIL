@@ -22,7 +22,9 @@ class Model():
 	def __init__(self):
 		self.EMOTIONS = { 'happy': 0, 'neutral': 1, 'sad': 2, 'angry': 3 }
 
-		self.num_sample = 32
+		self.num_sample = 32	# 60
+		self.n_mfcc = 26
+		self.batch_size = 32
 		self.epochs = 20
 
 		self.graph = tf.get_default_graph()
@@ -30,7 +32,7 @@ class Model():
 		with self.graph.as_default():
 
 			self.model = Sequential()
-			self.model.add(Conv2D(32, (2, 2), input_shape=(self.num_sample, 26, 1), padding='same', activation='relu'))
+			self.model.add(Conv2D(32, (2, 2), input_shape=(self.num_sample, self.n_mfcc, 1), padding='same', activation='relu'))
 			self.model.add(Conv2D(32, (2, 2), padding='same', activation='relu'))
 			self.model.add(MaxPool2D(pool_size=(2, 2)))
 
@@ -73,7 +75,7 @@ class Model():
 			# processed_x.append(filter_bank_feature[:self.num_sample, :])
 			processed_y.append(self.EMOTIONS[target_emotion])
 
-		processed_x = np.array(processed_x).reshape(-1, self.num_sample, 26, 1)
+		processed_x = np.array(processed_x).reshape(-1, self.num_sample, self.n_mfcc, 1)
 		processed_y = np_utils.to_categorical(processed_y)
 
 		train_data_ratio = 0.9
@@ -91,24 +93,24 @@ class Model():
 		self.load_dataset()
 
 		with self.graph.as_default():
-			hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=self.epochs, batch_size=32)
+			hist = self.model.fit(self.train_data_x, self.train_data_y, epochs=self.epochs, batch_size=self.batch_size)
 			print('>> training result')
 			print(hist)
 			self.histogram(hist)
 
 	def test(self):
-		loss_and_metrics = self.model.evaluate(self.test_data_x, self.test_data_y, batch_size=32)
+		loss_and_metrics = self.model.evaluate(self.test_data_x, self.test_data_y, batch_size=self.batch_size)
 		print('>> test result')
 		print(loss_and_metrics)
 
 	def predict(self, x):
 
 		with self.graph.as_default():
-			x = np.array([x]).reshape(-1, self.num_sample, 26, 1)
+			x = np.array([x]).reshape(-1, self.num_sample, self.n_mfcc, 1)
 			# x = self.train_data_x[:2]
 
 			# self.model._make_predict_function()
-			prediction = self.model.predict(x, batch_size=32)
+			prediction = self.model.predict(x, batch_size=self.batch_size)
 
 			print('prediction:', prediction)
 			print(type(prediction))
@@ -118,8 +120,27 @@ class Model():
 				'neutral': float(prediction[0][1]),
 				'sad': float(prediction[0][2]),
 				'angry': float(prediction[0][3]),
-				'disgust': float(prediction[0][4])
+				#'disgust': float(prediction[0][4])
 			}
+
+	def predict_with_test_set(self, n=100):
+		with self.graph.as_default():
+			x = np.array([self.test_data_x[:n]]).reshape(-1, self.num_sample, self.n_mfcc, 1)
+			pred = self.model.predict(x, batch_size=self.batch_size)
+
+			argx = {}
+			argx[True] = argx[False] = 0
+
+			for i, pred in enumerate(prediction):
+				print('[{}] label: {}'.format(i+1, self.test_data_y[i]))
+				print('result:', {
+					'happy': float(pred[0]),
+					'neutral': float(pred[1]),
+					'sad': float(pred[2]),
+					'angry': float(pred[3])
+				})
+				argx[np.argmax(self.test_data_y[i]) == np.argmax(pred)] += 1
+			print(argx)
 
 	def save(self):
 		self.model.save('cnn_emotion.h5')
