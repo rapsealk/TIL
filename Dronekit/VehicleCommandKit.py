@@ -25,11 +25,28 @@ class VehicleCommandKit(object):
         _log(" System status: " + self.vehicle.system_status.state)
         _log(" Mode: " + self.vehicle.mode.name)
 
+        # Watch location update
+        self.vehicle.add_attribute_listener('global_frame', self.location_callback)
+        _log("Global: {}".format(self.vehicle.location.global_frame))
+        _log("Global Latitude: {}".format(self.vehicle.location.global_frame.lat))
+        _log("Global Longitude: {}".format(self.vehicle.location.global_frame.lon))
+        _log("Global Altitude: {}".format(self.vehicle.location.global_frame.alt))
+
+        _log("Relative: {}".format(self.vehicle.location.global_relative_frame))
+        _log("Relative Latitude: {}".format(self.vehicle.location.global_relative_frame.lat))
+        _log("Relative Longitude: {}".format(self.vehicle.location.global_relative_frame.lon))
+        _log("Relative Altitude: {}".format(self.vehicle.location.global_relative_frame.alt))
+
+        _log("Local NED: {}".format(self.vehicle.location.local_frame))
+
     def __del__(self):
         #self.vehicle.close()
         _log("Vehicle has closed..")
 
-    def arm(self):
+    def location_callback(self, attr_name, msg):
+        _log("Location (Global): {}".format(msg))
+
+=    def arm(self):
         while not self.vehicle.armed:
             _log("Vehicle is not armed..")
             _log("Command \"Arm\"..")
