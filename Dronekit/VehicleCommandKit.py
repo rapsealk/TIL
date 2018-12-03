@@ -11,11 +11,10 @@ def _log(message):
 
 class VehicleCommandKit(object):
 
-    def __init__(self):
+    def __init__(self, port='COM8'):
         _log("== VehicleCommandKit ==")
 
-        self.port = 'COM8'
-        self.vehicle = connect(self.port, wait_ready=True, baud=57600)
+        self.vehicle = connect(port, wait_ready=True, baud=57600)
 
         _log("Got some vehicle attribute values:")
         _log(" GPS: " + self.vehicle.gps_0)
@@ -39,6 +38,9 @@ class VehicleCommandKit(object):
 
         _log("Local NED: {}".format(self.vehicle.location.local_frame))
 
+        self.commands = ['arm', 'disarm', 'takeoff', 'run']
+        _log("Commands available: {}".format(self.commands))
+
     def __del__(self):
         #self.vehicle.close()
         _log("Vehicle has closed..")
@@ -46,10 +48,29 @@ class VehicleCommandKit(object):
     def location_callback(self, attr_name, msg):
         _log("Location (Global): {}".format(msg))
 
-=    def arm(self):
+    """
+    def mission(self):
+        # Get commands object from Vehicle.
+        cmds = self.vehicle.commands
+        # Call clear() on Vehicle.commands and upload the command to the vehicle.
+        cmds.clear()
+
+        cmd1 = Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_TAKEOFF, 0, 0, 0, 0, 0, 0, 0, 0, 10)
+        cmd2 = Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, 10, 10, 10)
+        cmds.add(cmd1)
+        cmds.add(cmd2)
+
+        cmds.upload()
+    """
+
+    def arm(self):
+        while not self.vehicle.is_armable:
+            _log("Waiting for vehicle to initilize..")
+            time.sleep(1)
         while not self.vehicle.armed:
             _log("Vehicle is not armed..")
             _log("Command \"Arm\"..")
+            # self.vehicle.mode = VehicleMode("GUIDED") # OFFBOARD
             self.vehicle.armed = True
             time.sleep(1)
         _log("Vehicle is now armed..")
@@ -62,14 +83,47 @@ class VehicleCommandKit(object):
             time.sleep(1)
         _log("Vehicle is now disarmed..")
 
+    def takeoff(self, altitude=5):
+        if not self.vehicle.armed:
+            _log("Vehicle must be armed before takeoff..")
+            return
+        _log("Command \"Takeoff\"")
+        _log("Takeoff target altitude: {}".format(altitude))
+        self.vehicle.simple_takeoff(altitude)
+
+    """
+    def _offboard_move(self):
+        msg = self.vehicle.message_factory.set_position_target_local_ned_encode(
+            0,      # time_boot_ms (not used)
+            0, 0,   # target system, target component
+            mavutil.mavlink.MAV_FRAME_LOCAL_NED,    # frame
+            0b0000111111111000, # type_mask (only positions enabled)
+            north, east, down,  # x, y, z positions (or North, East, Down in the MAV_FRAME_BODY_NED frame)
+            0, 0, 0,    # x, y, z velocity in m/s   (not used)
+            0, 0, 0,    # x, y, z acceleration (not supported yet, ignored in GCS_Mavlink)
+            0, 0        # yaw, yaw_rate (not supported yet, ignored in GCS_Mavlink)
+        )
+        # send command to vehicle
+        self.vehicle.send_mavlink(msg)
+    """
+
+    def run(self):
+        # MAV_CMD_MISSION_START: if the vehicle is on the ground (only)
+        self.vehicle.mode = VehicleMode("AUTO")
+
     def close(self):
         self.vehicle.close()
 
     def command(self, cmd):
+        # exec('self.' + command + '()')
         if cmd.upper() == 'ARM':
             self.arm()
         elif cmd.upper() == 'DISARM':
             self.disarm()
+        elif cmd.upper() == 'TAKEOFF':
+            self.takeoff()
+        elif cmd.upper() == 'RUN':
+            self.run()
         else:
             _log("Invalid command: " + cmd)
 
