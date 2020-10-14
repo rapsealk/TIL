@@ -1,0 +1,84 @@
+{
+  // Client -> Server
+  "client": {
+    "ActionId": 0
+  },
+  // Server -> Client
+  "server": {
+    "Units": [
+      // Player
+      {
+        "Id": 0, // uint32
+        "Health": 0, // uint32
+        "MaxHealth": 0,
+        "Sensor": [
+          {
+            "Id": 0,
+            "Type": 0, // Å½Áö ¼¾¼­
+            "Activated": true
+          },
+          {
+            "Id": 1,
+            "Type": 1, // ÇÇÅ½Áö Å½Áö ¼¾¼­?
+            "Activated": false
+          }
+        ],
+        "Heading": 0.0, // -180~180
+        "Knots": 0,
+        "Transmission": 0, // -1~4
+        "SteeringAngle": 0, // -90~90
+        "Location": [ 0.0, 0.0, 0.0 ],
+        "Weapon": {
+          "Missile": 0, // uint32
+          "NavalGun": {
+            "Bullets": 0,
+            "Reload": 0.0,
+            "Rotation": [ 0.0, 0.0, 0.0 ]
+          },
+          "Torpedo": [
+            {
+              "Id": 0,
+              "Left": 0,
+              "Cooldown": 10.0
+            },
+            {
+              "Id": 1,
+              "Left": 0,
+              "Cooldown": 10.0
+            }
+          ],
+          "GoalKeeper": {
+            "Bullets": 0,
+            "Reload": 0.0,
+            "Rotation": [ 0.0, 0.0, 0.0 ]
+          }
+        }
+      },
+      // Enemy
+      {
+        "Id": 1,
+        "IsDetected": true,
+        "Location": [ 0.0, 0.0, 0.0 ],
+        "Distance": 0.0, // meters
+        "PredictedHealth": 0,
+        "PredictedMaxHealth": 0
+      }
+    ],
+    "Missiles": [
+      {
+        "Location": [ 0.0, 0.0, 0.0 ]
+      }
+    ],
+    "Torpedoes": [
+      {
+        "Location": [ 0.0, 0.0, 0.0 ]
+      }
+    ],
+    "ShellInfo": [
+      {
+        "HitPoint": [ 0.0, 0.0, 0.0 ],
+        "RotationVector": [ 0.0, 0.0, 0.0 ]
+      }
+    ]
+  }
+}

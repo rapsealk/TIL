@@ -1,5 +1,13 @@
 .DS_Store
 
+# Visual Studio
+Debug/
+Release/
+x64/
+x86/
+ipch/
+.vs/
+
 node_modules/
 __pycache__/
 dbconfig.json
