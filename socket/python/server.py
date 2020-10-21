@@ -1,78 +1,93 @@
 #!/usr/local/bin/python3
 # -*- coding: utf-8 -*-
-import os
 import sys
-import concurrent
+import random
+import concurrent.futures
+import socket
+import json
+import threading
 
-import grpc
-import numpy as np
+from util import recvall
 
-import captain_pb2
-import captain_pb2_grpc
+HEADER_SIZE = 4
 
-sys.path.append(os.path.dirname(os.path.join(os.path.dirname(__file__), '../../../')))
-from model import TurtleNet
-
-
-class CaptainServicer(captain_pb2_grpc.CaptainServicer):
-
-    def __init__(self):
-        self.model = TurtleNet.new()
-
-    def MakeDecision(self, request, context):
-        print('Captain.MakeDecision: %d -*-*-' % os.getpid())
-        """
-        print('- player_health:', request.player_health)
-        print('- player_yaw:', request.player_yaw)
-        print('- player_position:', request.player_position)
-        print('- player_speed:', request.player_speed)
-        print('- enemy_health:', request.enemy_health)
-        print('- enemy_yaw:', request.enemy_yaw)
-        print('- enemy_position:', request.enemy_position)
-        print('- enemy_visible:', request.enemy_visible)
-        print('- guns_embedding:', request.guns_embedding)
-        print('- guns_loading:', request.guns_loading)
-        print('- crosshair:', len(request.crosshair))
-        print('- camera_rotation:', request.camera_rotation)
-        """
-        """
-        tid = int(time.time() * 1000)
-        args = (request.player_health, request.player_yaw, request.player_position.x, request.player_position.y,
-                request.player_speed, request.enemy_health, request.enemy_yaw, request.enemy_position.x, request.enemy_position.y,
-                request.enemy_visible, *request.guns_embedding, *request.guns_loading, '%s.png' % tid)
-        fmt = '%f,%f,%f,%f,%f,%f,%f,%f,%f,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f,%f,%f,%f,%s\n'
-        with open('data/%d.csv' % tid, 'a') as f:
-            f.write(fmt % args)
-        """
-
-        player = np.array([request.player_health, request.player_yaw, request.player_position.x, request.player_position.y], dtype=np.float32).reshape((-1, 4))
-        knot = np.array([request.player_speed], dtype=np.float32).reshape((-1, 1))
-        enemy = np.array([request.enemy_health, request.enemy_yaw, request.enemy_position.x, request.enemy_position.y, request.enemy_visible], dtype=np.float32).reshape((-1, 5))
-        guns = np.array([request.guns_embedding, request.guns_loading], dtype=np.float32).reshape((-1, 2, 6))
-        camera = np.array([request.camera_rotation], dtype=np.float32).reshape((-1, 1))
-
-        data = {'player': player, 'knot': knot, 'enemy': enemy,
-                'guns': guns, 'camera': camera}
-
-        output = self.model(dict(data))
-
-        steering = np.argmax(output[2])
-        forwarding = np.argmax(output[3])
-        fire = np.argmax(output[4]) == 1
-
-        action = captain_pb2.Action(value=output[0], x=output[1], steering=steering, forwarding=forwarding, fire=fire)
-        # action = captain_pb2.Action(value=0, x=0, y=0, steering=0, forwarding=0, fire=True)
-
-        return action
+ADDR = ('0.0.0.0', 50637)
 
 
-def serve():
-    server = grpc.server(concurrent.futures.ThreadPoolExecutor(max_workers=8))
-    captain_pb2_grpc.add_CaptainServicer_to_server(CaptainServicer(), server)
-    server.add_insecure_port('[::]:50051')
-    server.start()
-    server.wait_for_termination()
+def __recv(sock, as_str=False):
+    header = recvall(sock, 4)
+    bytes_to_read = int.from_bytes(header, byteorder=sys.byteorder)
+    print('%d bytes to read!' % bytes_to_read)
+
+    data = recvall(sock, bytes_to_read)
+    if as_str:
+        data = data.decode("utf-8")
+
+    return data
+
+
+def handle_connection(sock, addr):
+    tag = '%s:%s' % (threading.get_ident(), addr)
+    # [1] client -> server
+    data = __recv(sock, as_str=True)
+    data = json.loads(data)
+    print('[%s] recv: %s' % (tag, data))
+
+    # [2] server -> client
+    observation = {
+        "Units": [
+            {
+                "Id": random.randint(1, 100),
+                "TeamId": 0,
+                "Health": 18400 - random.randint(100, 10000),
+                "MaxHealth": 18400,
+                "Sensor": [
+                    {
+                        "Id": 0,
+                        "Type": 0,
+                        "Activated": True
+                    }
+                ],
+                "Arm": {
+                    "Turret": [{
+                        "Ammo": 21
+                    }],
+                    "Missile": []
+                },
+                "Heading": 0.0,
+                "Location": [random.random(), random.random(), random.random()],
+                "Detected": [random.randint(1, 100)]
+            },
+        ]
+    }
+    data = json.dumps(observation)
+    data = data.encode("utf-8")
+    print('[%s] send: %d bytes' % (tag, len(data)))
+    sock.sendall(int.to_bytes(len(data), HEADER_SIZE, byteorder=sys.byteorder))
+    sock.sendall(data)
+
+    # [3] client -> server
+    data = __recv(sock, as_str=True)
+    data = json.loads(data)
+    print('[%s] recv: %s' % (tag, data))
+
+    # [4] Close
+    sock.close()
+
+
+def main():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(ADDR)
+    sock.listen(8)
+    print('Server is running at %s' % (ADDR,))
+
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=8)
+
+    while True:
+        print('Waiting for connection..')
+        client, addr = sock.accept()
+        pool.submit(handle_connection, client, addr)    # future.result()
 
 
 if __name__ == "__main__":
-    serve()
+    main()
